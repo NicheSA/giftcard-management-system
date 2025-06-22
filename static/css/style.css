@@ -1,0 +1,956 @@
+/* ===== الخطوط ===== */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+/* ===== متغيرات CSS ===== */
+:root {
+    --primary-color: #8e44ad;
+    --secondary-color: #9b59b6;
+    --accent-color: #e74c3c;
+    --text-color: #333;
+    --light-text: #777;
+    --bg-color: #f9f9f9;
+    --card-bg: #fff;
+    --border-color: #eee;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-radius: 10px;
+    --spacing: 20px;
+    --font-family: 'Tajawal', sans-serif;
+}
+
+/* ===== إعادة تعيين عامة ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    direction: rtl;
+}
+
+/* ===== الحاويات ===== */
+.container {
+    max-width: 100%;
+    padding: 0 var(--spacing);
+    margin: 0 auto;
+    padding-bottom: 80px; /* مساحة لشريط التنقل السفلي */
+}
+
+header {
+    text-align: center;
+    padding: var(--spacing) 0;
+    position: relative;
+}
+
+header h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+header p {
+    color: var(--light-text);
+    font-size: 1rem;
+}
+
+/* ===== نموذج تسجيل الدخول ===== */
+.login-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: var(--spacing);
+    max-width: 500px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.login-card h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.login-card p {
+    color: var(--light-text);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e44ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 15px center;
+    background-size: 15px;
+    padding-left: 40px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-secondary {
+    background-color: #f1f1f1;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #e5e5e5;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ===== شريط التنقل السفلي ===== */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    color: var(--light-text);
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 33.33%;
+    text-align: center;
+}
+
+.nav-item i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.nav-item span {
+    font-size: 0.8rem;
+}
+
+.nav-item.active {
+    color: var(--primary-color);
+}
+
+.nav-item.add-button {
+    color: var(--accent-color);
+}
+
+.nav-item.add-button i {
+    font-size: 2rem;
+}
+
+/* ===== قائمة البطاقات ===== */
+.cards-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.card-item {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    border-left: 4px solid transparent;
+}
+
+/* تأثيرات مخصصة لأنواع البطاقات في القائمة */
+.card-item:has(.card-type-label[data-type="زواج"]) {
+    border-left-color: #f1c40f; /* حدود صفراء للزواج */
+}
+
+.card-item:has(.card-type-label[data-type="تخرج"]) {
+    border-left-color: #7f8c8d; /* حدود رمادية للتخرج */
+}
+
+.card-item:has(.card-type-label[data-type="تهنئة"]) {
+    border-left-color: #3498db; /* حدود زرقاء للتهنئة */
+}
+
+.card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-preview {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #fcfcfc;
+}
+
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.card-top-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 5px 0;
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card-type-label, .card-value-label, .card-type-badge, .card-value-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.card-type-label, .card-type-badge {
+    color: white;
+}
+
+/* ألوان مخصصة لأنواع البطاقات */
+.card-type-label[data-type="زواج"], .card-type-badge[data-type="زواج"] {
+    background-color: #f1c40f; /* لون أصفر للزواج */
+}
+
+.card-top-info .card-type-badge[data-type="زواج"] {
+    background-color: #f1c40f; /* لون أصفر للزواج */
+    color: #fff;
+}
+
+.card-type-label[data-type="تخرج"], .card-type-badge[data-type="تخرج"] {
+    background-color: #7f8c8d; /* لون رمادي للتخرج */
+}
+
+.card-top-info .card-type-badge[data-type="تخرج"] {
+    background-color: #7f8c8d; /* لون رمادي للتخرج */
+    color: #fff;
+}
+
+.card-type-label[data-type="تهنئة"], .card-type-badge[data-type="تهنئة"] {
+    background-color: #3498db; /* لون أزرق للتهنئة */
+}
+
+.card-top-info .card-type-badge[data-type="تهنئة"] {
+    background-color: #3498db; /* لون أزرق للتهنئة */
+    color: #fff;
+}
+
+/* لون افتراضي في حالة عدم تطابق النوع */
+.card-type-label:not([data-type]), .card-type-badge:not([data-type]),
+.card-type-label:not([data-type="زواج"]):not([data-type="تخرج"]):not([data-type="تهنئة"]),
+.card-type-badge:not([data-type="زواج"]):not([data-type="تخرج"]):not([data-type="تهنئة"]) {
+    background-color: var(--primary-color);
+}
+
+.card-value-label, .card-value-badge {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.card-top-info .card-value-badge {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.card-type-badge, .card-value-badge {
+    padding: 5px 12px;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-top-info .card-type-badge, .card-top-info .card-value-badge {
+    padding: 8px 15px;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.preview-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.preview-type, .preview-value {
+    font-size: 0.9rem;
+}
+
+/* ألوان مخصصة لأنواع البطاقات في المعاينة */
+#preview-type[data-type="زواج"] {
+    color: #f1c40f; /* لون أصفر للزواج */
+    font-weight: bold;
+}
+
+#preview-type[data-type="تخرج"] {
+    color: #7f8c8d; /* لون رمادي للتخرج */
+    font-weight: bold;
+}
+
+#preview-type[data-type="تهنئة"] {
+    color: #3498db; /* لون أزرق للتهنئة */
+    font-weight: bold;
+}
+
+.card-header, .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.card-footer {
+    margin-top: 5px;
+    margin-bottom: 0;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.to-label, .from-label {
+    font-weight: 700;
+    margin-left: 3px;
+    color: var(--primary-color);
+    font-size: 0.65rem;
+}
+
+.card-message {
+    padding: 10px 0;
+    border: none;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.70rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: none;
+}
+
+.card-date {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: none;
+    border: none;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    font-weight: 500;
+}
+
+.card-code {
+    text-align: center;
+    margin: 5px 0;
+    width: 100%;
+}
+
+.card-code span {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== حالة فارغة ===== */
+.empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--light-text);
+}
+
+.empty-state i {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+/* ===== نموذج البطاقة ===== */
+.card-form {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: var(--spacing);
+    margin-bottom: 20px;
+}
+
+.form-preview {
+    margin: 20px 0;
+}
+
+.form-preview h3 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.preview-code {
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.preview-code span {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #666;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* ===== عرض البطاقة ===== */
+.gift-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    width: 400px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 3px;
+}
+
+/* تأثيرات مخصصة لأنواع البطاقات في صفحة العرض */
+.gift-card[data-type="زواج"] {
+    border-color: #f1c40f; /* حدود صفراء للزواج */
+    background-color: #f1c40f; /* خلفية صفراء للزواج */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card[data-type="تخرج"] {
+    border-color: #7f8c8d; /* حدود رمادية للتخرج */
+    background-color: #7f8c8d; /* خلفية رمادية للتخرج */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card[data-type="تهنئة"] {
+    border-color: #3498db; /* حدود زرقاء للتهنئة */
+    background-color: #3498db; /* خلفية زرقاء للتهنئة */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card:before {
+    content: none;
+}
+
+.to-section {
+    margin: 2px 0 0;
+    background: none;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.from-section {
+    margin: 0 0 2px;
+    background: none;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.to-name, .from-name {
+    font-size: 0.75rem;
+}
+
+.card-message {
+    padding: 5px 0;
+    font-size: 1rem;
+    line-height: 1.4;
+    text-align: center;
+    border: none;
+    margin: 5px 0 auto;
+    background: none;
+    width: 100%;
+    font-weight: 700;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 1);
+    max-height: none;
+    overflow: visible;
+    flex-grow: 1;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-code {
+    text-align: center;
+    margin: 2px 0;
+    width: 100%;
+}
+
+.card-code span {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== حالة فارغة ===== */
+.empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--light-text);
+}
+
+.empty-state i {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+/* ===== نموذج البطاقة ===== */
+.card-form {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: var(--spacing);
+    margin-bottom: 20px;
+}
+
+.form-preview {
+    margin: 20px 0;
+}
+
+.form-preview h3 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.preview-code {
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.preview-code span {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #666;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* ===== عرض البطاقة ===== */
+.gift-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    width: 400px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+}
+
+/* تأثيرات مخصصة لأنواع البطاقات في صفحة العرض */
+.gift-card[data-type="زواج"] {
+    border-color: #f1c40f; /* حدود صفراء للزواج */
+    background-color: #f1c40f; /* خلفية صفراء للزواج */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card[data-type="تخرج"] {
+    border-color: #7f8c8d; /* حدود رمادية للتخرج */
+    background-color: #7f8c8d; /* خلفية رمادية للتخرج */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card[data-type="تهنئة"] {
+    border-color: #3498db; /* حدود زرقاء للتهنئة */
+    background-color: #3498db; /* خلفية زرقاء للتهنئة */
+    color: rgba(255, 255, 255, 0.9); /* نص شفاف أبيض */
+}
+
+.gift-card:before {
+    content: none;
+}
+
+.to-section, .from-section {
+    margin-bottom: 5px;
+    background: none;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.to-label, .from-label {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    margin-left: 5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: none;
+    border: none;
+}
+
+.to-name, .from-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: center;
+}
+
+.card-message {
+    padding: 10px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: center;
+    border: none;
+    margin: 5px 0;
+    background: none;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.card-body {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.card-actions button {
+    flex: 1;
+    margin: 0 5px;
+}
+
+/* ===== زر الرجوع ===== */
+.back-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+/* ===== صفحة المنتجات ===== */
+.product-category {
+    margin-bottom: 30px;
+}
+
+.category-title {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.5rem;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.product-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.product-preview {
+    height: 150px;
+    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
+
+.product-preview[data-type="زواج"] {
+    background-color: #f1c40f;
+}
+
+.product-preview[data-type="تخرج"] {
+    background-color: #7f8c8d;
+}
+
+.product-preview[data-type="تهنئة"] {
+    background-color: #3498db;
+}
+
+.preview-badge, .preview-value {
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.preview-badge {
+    top: 10px;
+    right: 10px;
+}
+
+.preview-value {
+    top: 10px;
+    left: 10px;
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.preview-to, .preview-from {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.preview-message {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.product-info h3 {
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
+.product-price {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* ===== تصميم متجاوب ===== */
+@media (min-width: 768px) {
+    .container {
+        max-width: 768px;
+    }
+    
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1024px;
+    }
+    
+    .cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ===== طباعة البطاقة ===== */
+@media print {
+    .container {
+        padding: 0;
+    }
+    
+    header, .card-actions, .bottom-navbar, .back-button {
+        display: none;
+    }
+    
+    .gift-card {
+        box-shadow: none;
+        border: 2px solid var(--primary-color);
+        margin: 0;
+        page-break-inside: avoid;
+    }
+}

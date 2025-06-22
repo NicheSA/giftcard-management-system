@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقات الإهداء - الرئيسية</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مرحباً {{ user_name }}</h1>
+            <p>بطاقات الإهداء الخاصة بك</p>
+        </header>
+        
+        <main class="cards-container">
+            {% if cards %}
+                {% for card in cards %}
+                <div class="card-item" onclick="window.location.href='{{ url_for('view_card', card_id=card.id) }}';">
+                    <div class="card-preview">
+                        <div class="card-info">
+                            <span class="card-type-label" data-type="{{ card.card_type }}">{{ card.card_type }}</span>
+                            <span class="card-value-label">{{ card.card_value }} ريال</span>
+                        </div>
+                        <div class="card-header">
+                            <span class="to-label">إلى:</span>
+                            <span>{{ card.to_name }}</span>
+                        </div>
+                        <div class="card-message">
+                            {{ card.message[:50] }}{% if card.message|length > 50 %}...{% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <span class="from-label">من:</span>
+                            <span>{{ card.from_name }}</span>
+                        </div>
+                    </div>
+                    <div class="card-date">
+                        {{ card.created_at }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-gift fa-4x"></i>
+                    <p>لا توجد بطاقات إهداء حتى الآن</p>
+                    <p>اضغط على زر الإضافة لإنشاء بطاقة جديدة</p>
+                </div>
+            {% endif %}
+        </main>
+        
+        <!-- شريط التنقل السفلي الثابت -->
+        <nav class="bottom-navbar">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </nav>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

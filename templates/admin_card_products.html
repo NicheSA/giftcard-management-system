@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة منتجات البطاقات - لوحة التحكم</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding-bottom: 80px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .products-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        .product-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product-preview {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .product-info {
+            text-align: center;
+        }
+        
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .product-price {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1><i class="fas fa-cogs"></i> إدارة منتجات البطاقات</h1>
+        <p>إضافة وتعديل وحذف منتجات بطاقات الإهداء</p>
+    </div>
+    
+    <div class="admin-content">
+        <!-- رسائل التنبيه -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- أزرار الإجراءات -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openAddModal()">
+                <i class="fas fa-plus"></i>
+                إضافة منتج جديد
+            </button>
+            <a href="{{ url_for('admin_cards') }}" class="btn btn-success">
+                <i class="fas fa-list"></i>
+                عرض جميع البطاقات
+            </a>
+        </div>
+        
+        <!-- قسم المنتجات الحالية -->
+        <div class="products-section">
+            <h2 class="section-title">
+                <i class="fas fa-gift"></i>
+                المنتجات الحالية
+            </h2>
+            
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-item">
+                    <div class="product-preview" style="background-color: {{ product.background_color|default('#667eea') }};">
+                        <div style="font-size: 1.2rem; margin-bottom: 10px;">{{ product.name }}</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">{{ product.price }} ريال</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">{{ product.price }} ريال</div>
+                        <div class="product-actions">
+                            <button class="btn btn-warning btn-sm" onclick="editProduct('{{ product.id }}')">تعديل</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('{{ product.id }}')">حذف</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- مودال إضافة/تعديل منتج -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">إضافة منتج جديد</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <form id="productForm" method="POST" action="{{ url_for('admin_products') }}">
+                <input type="hidden" id="productId" name="product_id">
+                <input type="hidden" id="formAction" name="action" value="add">
+                
+                <div class="form-group">
+                    <label for="productName">وصف المنتج (اختياري):</label>
+                    <input type="text" id="productName" name="description" placeholder="مثال: بطاقة هدايا فاخرة">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productPrice">السعر (ريال):</label>
+                    <input type="number" id="productPrice" name="price" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productType">نوع المنتج:</label>
+                    <select id="productType" name="type" required onchange="handleProductTypeChange()">
+                        <option value="">اختر نوع المنتج</option>
+                        {% for type in unique_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                        <option value="__new__">إضافة نوع جديد...</option>
+                    </select>
+                    <input type="text" id="newProductType" name="new_type" placeholder="أدخل نوع المنتج الجديد" style="display: none; margin-top: 10px;" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>لون الخلفية:</label>
+                    <input type="hidden" id="selectedColor" name="background_color" value="#667eea">
+                    <div class="color-picker">
+                        <div class="color-option selected" style="background: #667eea" onclick="selectColor('#667eea')"></div>
+                        <div class="color-option" style="background: #764ba2" onclick="selectColor('#764ba2')"></div>
+                        <div class="color-option" style="background: #56ab2f" onclick="selectColor('#56ab2f')"></div>
+                        <div class="color-option" style="background: #ff6b6b" onclick="selectColor('#ff6b6b')"></div>
+                        <div class="color-option" style="background: #4ecdc4" onclick="selectColor('#4ecdc4')"></div>
+                        <div class="color-option" style="background: #45b7d1" onclick="selectColor('#45b7d1')"></div>
+                        <div class="color-option" style="background: #f39c12" onclick="selectColor('#f39c12')"></div>
+                        <div class="color-option" style="background: #9b59b6" onclick="selectColor('#9b59b6')"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i>
+                        حفظ المنتج
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- الناف بار السفلي -->
+    <div class="bottom-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="{{ url_for('admin_cards') }}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Cards</span>
+            </a>
+            <a href="{{ url_for('admin_products') }}" class="nav-item active">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>المستخدمين</span>
+            </a>
+            <a href="{{ url_for('admin_reports') }}" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>التقارير</span>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        function openAddModal() {
+            // إعادة تعيين النموذج
+            document.getElementById('modalTitle').textContent = 'إضافة منتج جديد';
+            document.getElementById('formAction').value = 'add';
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productType').value = '';
+            document.getElementById('newProductType').value = '';
+            document.getElementById('newProductType').style.display = 'none';
+            document.getElementById('newProductType').required = false;
+            document.getElementById('productType').name = 'type';
+            document.getElementById('newProductType').name = '';
+            
+            // إعادة تعيين اللون الافتراضي
+            selectColor('#667eea');
+            
+            document.getElementById('productModal').style.display = 'block';
+        }
+        
+        function editProduct(productId) {
+            // جلب بيانات المنتج من الخادم
+            fetch(`/admin/products/get/${productId}`)
+                .then(response => response.json())
+                .then(product => {
+                    if (product.error) {
+                        alert('خطأ في جلب بيانات المنتج: ' + product.error);
+                        return;
+                    }
+                    
+                    // ملء النموذج ببيانات المنتج
+                    document.getElementById('modalTitle').textContent = 'تعديل المنتج';
+                    document.getElementById('formAction').value = 'update';
+                    document.getElementById('productId').value = productId;
+                    document.getElementById('productPrice').value = product.price;
+                    
+                    // تعيين نوع المنتج
+                    const productTypeSelect = document.getElementById('productType');
+                    const newProductTypeInput = document.getElementById('newProductType');
+                    
+                    // البحث عن النوع في القائمة الموجودة
+                    let typeFound = false;
+                    for (let option of productTypeSelect.options) {
+                        if (option.value === product.name) {
+                            option.selected = true;
+                            typeFound = true;
+                            break;
+                        }
+                    }
+                    
+                    // إذا لم يوجد النوع في القائمة، استخدم "إضافة نوع جديد"
+                    if (!typeFound) {
+                        productTypeSelect.value = '__new__';
+                        newProductTypeInput.style.display = 'block';
+                        newProductTypeInput.value = product.name;
+                        newProductTypeInput.required = true;
+                        productTypeSelect.name = '';
+                        newProductTypeInput.name = 'type';
+                    } else {
+                        newProductTypeInput.style.display = 'none';
+                        newProductTypeInput.required = false;
+                        productTypeSelect.name = 'type';
+                        newProductTypeInput.name = '';
+                    }
+                    
+                    // تعيين اللون
+                    selectColor(product.background_color);
+                    
+                    // عرض المودال
+                    document.getElementById('productModal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('خطأ في جلب بيانات المنتج:', error);
+                    alert('حدث خطأ في جلب بيانات المنتج');
+                });
+        }
+        
+        function deleteProduct(productId) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url_for("admin_products") }}';
+                
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'product_id';
+                idInput.value = productId;
+                
+                form.appendChild(actionInput);
+                form.appendChild(idInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function selectColor(color) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // البحث عن العنصر الذي يحتوي على اللون المحدد
+            const colorElements = document.querySelectorAll('.color-option');
+            colorElements.forEach(element => {
+                const elementColor = element.style.background || element.getAttribute('style').match(/background:\s*([^;]+)/)?.[1];
+                if (elementColor && elementColor.includes(color)) {
+                    element.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('selectedColor').value = color;
+        }
+        
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+        
+        function handleProductTypeChange() {
+            const select = document.getElementById('productType');
+            const newTypeInput = document.getElementById('newProductType');
+            
+            if (select.value === '__new__') {
+                newTypeInput.style.display = 'block';
+                newTypeInput.required = true;
+                select.name = 'old_type';
+                newTypeInput.name = 'type';
+            } else {
+                newTypeInput.style.display = 'none';
+                newTypeInput.required = false;
+                select.name = 'type';
+                newTypeInput.name = 'new_type';
+                newTypeInput.value = '';
+            }
+        }
+        
+        // إغلاق المودال عند النقر خارجه
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // تحديث الناف بار النشط
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

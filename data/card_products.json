@@ -1,0 +1,77 @@
+[
+  {
+    "id": "08aa8a34-e458-4354-9935-868adaff9db0",
+    "name": "زواج",
+    "price": 50,
+    "background_color": "#ff6b6b",
+    "created_at": "2025-06-21T16:55:19.729746",
+    "is_active": true,
+    "updated_at": "2025-06-22T12:32:27.675823"
+  },
+  {
+    "id": "5164f369-4c40-48b7-a6b4-f10a7573ecfc",
+    "name": "زواج",
+    "price": 100,
+    "background_color": "#764ba2",
+    "created_at": "2025-06-21T16:55:19.729760",
+    "is_active": true
+  },
+  {
+    "id": "a26e95f2-e123-4588-88e7-bc653499f450",
+    "name": "مولود",
+    "price": 30,
+    "background_color": "#56ab2f",
+    "created_at": "2025-06-21T16:55:19.729764",
+    "is_active": true
+  },
+  {
+    "id": "d04e3155-1e61-4f52-8991-dbfd7e4cf9d1",
+    "name": "مولود",
+    "price": 50,
+    "background_color": "#4ecdc4",
+    "created_at": "2025-06-21T16:55:19.729767",
+    "is_active": true
+  },
+  {
+    "id": "6ea91951-b0b3-4d03-b8fe-0dfd665803fe",
+    "name": "تخرج",
+    "price": 75,
+    "background_color": "#f39c12",
+    "created_at": "2025-06-21T16:55:19.729771",
+    "is_active": true
+  },
+  {
+    "id": "5ce7c6d8-d40d-47d3-b161-35332807afae",
+    "name": "عيد ميلاد",
+    "price": 40,
+    "background_color": "#ff6b6b",
+    "created_at": "2025-06-21T16:55:19.729774",
+    "is_active": false,
+    "deleted_at": "2025-06-22T12:19:37.356320"
+  },
+  {
+    "id": "d6c52fd0-a9e9-4ba1-a92a-f532fed0e150",
+    "name": "مخصص",
+    "price": 1,
+    "background_color": "#ff6b6b",
+    "created_at": "2025-06-22T12:04:35.972117",
+    "is_active": true
+  },
+  {
+    "id": "aff18744-ad64-4e28-b8f0-2afe212a9b87",
+    "name": "حفلة",
+    "price": 2,
+    "background_color": "#9b59b6",
+    "created_at": "2025-06-22T12:16:52.961487",
+    "is_active": false,
+    "deleted_at": "2025-06-22T12:19:06.075586"
+  },
+  {
+    "id": "fda85501-4d37-4eb7-ad46-17fc0dc75d03",
+    "name": "حفلة",
+    "price": 3,
+    "background_color": "#ff6b6b",
+    "created_at": "2025-06-22T12:17:40.934586",
+    "is_active": true
+  }
+]

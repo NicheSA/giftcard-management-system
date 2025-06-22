@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقات الإهداء - المنتجات</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('home') }}" class="back-button">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1>منتجات بطاقات الإهداء</h1>
+            <p>اختر نوع البطاقة التي تريد إنشاءها</p>
+        </header>
+        
+        <main>
+            {% if products_by_type %}
+                {% for product_type, products in products_by_type.items() %}
+                <!-- قسم {{ product_type }} -->
+                <section class="product-category">
+                    <h2 class="category-title">بطاقات {{ product_type }}</h2>
+                    <div class="products-grid">
+                        {% for product in products %}
+                        <!-- بطاقة {{ product_type }} بقيمة {{ product.price }} ريال -->
+                        <div class="product-card" data-type="{{ product.name }}" data-value="{{ product.price }}" data-product-id="{{ product.id }}" onclick="selectCard(this)">
+                            <div class="product-preview" data-type="{{ product.name }}" style="background: linear-gradient(135deg, {{ product.background_color }} 0%, {{ product.background_color }} 100%);">
+                                <div class="preview-badge">{{ product.name }}</div>
+                                <div class="preview-value">{{ product.price }} ريال</div>
+                                <div class="preview-content">
+                                    <div class="preview-to">إلى: ...</div>
+                                    <div class="preview-message">رسالة تهنئة {{ product.name }}</div>
+                                    <div class="preview-from">من: ...</div>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h3>بطاقة {{ product.name }}</h3>
+                                <p class="product-price">{{ product.price }} ريال</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endfor %}
+            {% else %}
+                <div class="no-products">
+                    <i class="fas fa-box-open"></i>
+                    <h3>لا توجد منتجات متاحة حالياً</h3>
+                    <p>يرجى المحاولة مرة أخرى لاحقاً</p>
+                </div>
+            {% endif %}
+        </main>
+        
+        <!-- شريط التنقل السفلي الثابت -->
+        <nav class="bottom-navbar">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}'">                
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item add-button active">
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </nav>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        function selectCard(element) {
+            // الحصول على بيانات البطاقة المختارة
+            const cardType = element.getAttribute('data-type');
+            const cardValue = element.getAttribute('data-value');
+            const productId = element.getAttribute('data-product-id');
+            
+            // حفظ البيانات في الجلسة
+            sessionStorage.setItem('selectedCardType', cardType);
+            sessionStorage.setItem('selectedCardValue', cardValue);
+            sessionStorage.setItem('selectedProductId', productId);
+            
+            // الانتقال إلى صفحة إدخال البيانات
+            window.location.href = '{{ url_for("card_form_with_data") }}';
+        }
+    </script>
+    
+    <style>
+        .no-products {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-products i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .no-products h3 {
+            margin: 20px 0 10px;
+            color: #333;
+        }
+        
+        .no-products p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .product-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            position: relative;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .preview-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .preview-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .preview-content {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .preview-to, .preview-from {
+            margin: 5px 0;
+        }
+        
+        .preview-message {
+            margin: 10px 0;
+            font-style: italic;
+            opacity: 0.9;
+        }
+    </style>
+</body>
+</html>

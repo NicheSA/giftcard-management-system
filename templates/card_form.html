@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقات الإهداء - إنشاء بطاقة جديدة</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('home') }}" class="back-button">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1>إنشاء بطاقة إهداء جديدة</h1>
+        </header>
+        
+        <main>
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <form action="{{ url_for('save_card') }}" method="post" class="card-form">
+                <input type="hidden" id="product_id" name="product_id">
+                
+                <div class="form-group">
+                    <label for="card_type"><i class="fas fa-gift"></i> نوع بطاقة الإهداء</label>
+                    <input type="text" id="card_type" name="card_type" readonly required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card_value"><i class="fas fa-money-bill-wave"></i> قيمة البطاقة</label>
+                    <input type="text" id="card_value" name="card_value" readonly required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="from_name"><i class="fas fa-user"></i> إهداء من</label>
+                    <input type="text" id="from_name" name="from_name" placeholder="اسم المهدي" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="to_name"><i class="fas fa-user-friends"></i> إهداء إلى</label>
+                    <input type="text" id="to_name" name="to_name" placeholder="اسم المهدى إليه" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message"><i class="fas fa-envelope-open-text"></i> رسالة الإهداء</label>
+                    <textarea id="message" name="message" rows="5" placeholder="اكتب رسالة الإهداء هنا..." required></textarea>
+                </div>
+                
+                <div class="form-preview">
+                    <h3>معاينة البطاقة</h3>
+                    <div class="card-preview">
+                        <div class="preview-info">
+                            <div class="preview-type">
+                                <span class="preview-label">نوع البطاقة:</span>
+                                <span id="preview-type" class="preview-value" data-type="">-</span>
+                            </div>
+                            <div class="preview-value">
+                                <span class="preview-label">قيمة البطاقة:</span>
+                                <span id="preview-value" class="preview-value">-</span>
+                            </div>
+                        </div>
+                        <div class="preview-header">
+                            <span class="preview-label">إلى:</span>
+                            <span id="preview-to" class="preview-value">-</span>
+                        </div>
+                        <div class="preview-body">
+                            <p id="preview-message" class="preview-message">-</p>
+                        </div>
+                        <div class="preview-footer">
+                            <span class="preview-label">من:</span>
+                            <span id="preview-from" class="preview-value">-</span>
+                            <div class="preview-code">
+                                <span id="preview-code">------</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-credit-card"></i> متابعة للدفع
+                </button>
+            </form>
+        </main>
+        
+        <!-- شريط التنقل السفلي الثابت -->
+        <nav class="bottom-navbar">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}'">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item add-button active" onclick="window.location.href='{{ url_for('products') }}'">
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </nav>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // استرجاع بيانات البطاقة المختارة من صفحة المنتجات
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedCardType = sessionStorage.getItem('selectedCardType');
+            const selectedCardValue = sessionStorage.getItem('selectedCardValue');
+            const selectedProductId = sessionStorage.getItem('selectedProductId');
+            
+            // إذا كانت البيانات موجودة، قم بملء النموذج
+            if (selectedCardType && selectedCardValue && selectedProductId) {
+                // تعيين البيانات في الحقول
+                document.getElementById('product_id').value = selectedProductId;
+                document.getElementById('card_type').value = selectedCardType;
+                document.getElementById('card_value').value = selectedCardValue + ' ريال';
+                
+                // تحديث المعاينة
+                const previewType = document.getElementById('preview-type');
+                const previewValue = document.getElementById('preview-value');
+                
+                if (previewType) {
+                    previewType.textContent = selectedCardType;
+                    previewType.setAttribute('data-type', selectedCardType);
+                }
+                
+                if (previewValue) {
+                    previewValue.textContent = selectedCardValue + ' ريال';
+                }
+                
+                updatePreview();
+                
+                // مسح البيانات من الجلسة بعد استخدامها
+                sessionStorage.removeItem('selectedCardType');
+                sessionStorage.removeItem('selectedCardValue');
+                sessionStorage.removeItem('selectedProductId');
+            }
+        });
+    </script>
+    <script>
+        // معاينة مباشرة للبطاقة
+        document.getElementById('from_name').addEventListener('input', updatePreview);
+        document.getElementById('to_name').addEventListener('input', updatePreview);
+        document.getElementById('message').addEventListener('input', updatePreview);
+        
+        function updatePreview() {
+            const fromName = document.getElementById('from_name').value || '-';
+            const toName = document.getElementById('to_name').value || '-';
+            const message = document.getElementById('message').value || '-';
+            
+            document.getElementById('preview-from').textContent = fromName;
+            document.getElementById('preview-to').textContent = toName;
+            document.getElementById('preview-message').textContent = message;
+        }
+    </script>
+</body>
+</html>

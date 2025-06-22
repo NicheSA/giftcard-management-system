@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقات الإهداء - عرض البطاقة</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('home') }}" class="back-button">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1>بطاقة الإهداء</h1>
+        </header>
+        
+        <main>
+            <div class="card-top-info">
+                <div class="card-type-badge" data-type="{{ card.card_type }}">{{ card.card_type }}</div>
+                <div class="card-value-badge">{{ card.card_value }} ريال</div>
+            </div>
+            
+            <div class="gift-card" data-type="{{ card.card_type }}">
+                <div class="card-content">
+                    <div class="to-section">
+                        <span class="to-label">إلى:</span>
+                        <span class="to-name">{{ card.to_name }}</span>
+                    </div>
+                    
+                    <div class="card-message">
+                        {{ card.message }}
+                    </div>
+                    
+                    <div class="from-section">
+                        <span class="from-label">من:</span>
+                        <span class="from-name">{{ card.from_name }}</span>
+                    </div>
+                    
+                    <div class="card-code">
+                        <span id="random-code">{{ card.random_code if card.random_code else '000000' }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-actions">
+                <button class="btn-secondary" onclick="downloadCard()">
+                    <i class="fas fa-download"></i> تحميل البطاقة
+                </button>
+                <button class="btn-primary" onclick="shareCard()">
+                    <i class="fas fa-share-alt"></i> مشاركة البطاقة
+                </button>
+            </div>
+        </main>
+        
+        <!-- شريط التنقل السفلي الثابت -->
+        <nav class="bottom-navbar">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </nav>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadCard() {
+            // تحديد عنصر البطاقة
+            const cardElement = document.querySelector('.gift-card');
+            
+            // تحويل البطاقة إلى صورة باستخدام html2canvas
+            html2canvas(cardElement, {
+                backgroundColor: null,
+                scale: 2, // جودة أعلى
+                logging: false,
+                useCORS: true
+            }).then(function(canvas) {
+                // تحويل الكانفاس إلى رابط تحميل
+                const dataURL = canvas.toDataURL('image/png');
+                
+                // إنشاء رابط تحميل وتنفيذه
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataURL;
+                downloadLink.download = 'بطاقة_إهداء.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+        }
+        
+        function shareCard() {
+            // يمكن تنفيذ وظيفة المشاركة هنا
+            // مثلاً: نسخ رابط البطاقة أو مشاركتها عبر وسائل التواصل الاجتماعي
+            alert('تم نسخ رابط البطاقة!');
+        }
+    </script>
+</body>
+</html>

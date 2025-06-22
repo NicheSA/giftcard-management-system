@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة بطاقة جديدة - لوحة التحكم الإدارية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding-bottom: 80px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .form-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group label i {
+            color: #667eea;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .card-type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .card-type-option {
+            position: relative;
+        }
+        
+        .card-type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .card-type-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .card-type-option input[type="radio"]:checked + .card-type-label {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .card-type-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .type-marriage .card-type-icon { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .type-birthday .card-type-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .type-graduation .card-type-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .type-general .card-type-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        
+        .card-type-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .value-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .value-option {
+            position: relative;
+        }
+        
+        .value-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .value-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .value-option input[type="radio"]:checked + .value-label {
+            border-color: #43e97b;
+            background: rgba(67, 233, 123, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .value-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .value-currency {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        /* الناف بار السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 10px;
+            min-width: 60px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-item:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        .nav-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-content {
+                padding: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-type-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .value-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>إضافة بطاقة جديدة</h1>
+        <p>إنشاء بطاقة إهداء جديدة</p>
+    </div>
+    
+    <div class="admin-content">
+        <div class="form-container">
+            <div class="form-header">
+                <h2><i class="fas fa-gift"></i> بيانات البطاقة الجديدة</h2>
+                <p>يرجى ملء جميع البيانات المطلوبة لإنشاء بطاقة إهداء جديدة</p>
+            </div>
+            
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if success %}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                {{ success }}
+            </div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('admin_add_card') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="recipient_name">
+                            <i class="fas fa-user"></i>
+                            اسم المستلم
+                        </label>
+                        <input type="text" id="recipient_name" name="recipient_name" 
+                               value="{{ request.form.recipient_name or '' }}" 
+                               placeholder="أدخل اسم مستلم البطاقة" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipient_phone">
+                            <i class="fas fa-phone"></i>
+                            رقم الهاتف
+                        </label>
+                        <input type="tel" id="recipient_phone" name="recipient_phone" 
+                               value="{{ request.form.recipient_phone or '' }}" 
+                               placeholder="05xxxxxxxx" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-tags"></i>
+                        نوع البطاقة
+                    </label>
+                    <div class="card-type-options">
+                        <div class="card-type-option type-marriage">
+                            <input type="radio" id="marriage" name="card_type" value="marriage" 
+                                   {{ 'checked' if request.form.card_type == 'marriage' }}>
+                            <label for="marriage" class="card-type-label">
+                                <div class="card-type-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <span class="card-type-name">زواج</span>
+                            </label>
+                        </div>
+                        
+                        <div class="card-type-option type-birthday">
+                            <input type="radio" id="birthday" name="card_type" value="birthday" 
+                                   {{ 'checked' if request.form.card_type == 'birthday' }}>
+                            <label for="birthday" class="card-type-label">
+                                <div class="card-type-icon">
+                                    <i class="fas fa-birthday-cake"></i>
+                                </div>
+                                <span class="card-type-name">عيد ميلاد</span>
+                            </label>
+                        </div>
+                        
+                        <div class="card-type-option type-graduation">
+                            <input type="radio" id="graduation" name="card_type" value="graduation" 
+                                   {{ 'checked' if request.form.card_type == 'graduation' }}>
+                            <label for="graduation" class="card-type-label">
+                                <div class="card-type-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <span class="card-type-name">تخرج</span>
+                            </label>
+                        </div>
+                        
+                        <div class="card-type-option type-general">
+                            <input type="radio" id="general" name="card_type" value="general" 
+                                   {{ 'checked' if request.form.card_type == 'general' or not request.form.card_type }}>
+                            <label for="general" class="card-type-label">
+                                <div class="card-type-icon">
+                                    <i class="fas fa-gift"></i>
+                                </div>
+                                <span class="card-type-name">عامة</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-money-bill-wave"></i>
+                        قيمة البطاقة
+                    </label>
+                    <div class="value-options">
+                        <div class="value-option">
+                            <input type="radio" id="value_50" name="card_value" value="50" 
+                                   {{ 'checked' if request.form.card_value == '50' or not request.form.card_value }}>
+                            <label for="value_50" class="value-label">
+                                <span class="value-amount">50</span>
+                                <span class="value-currency">ريال سعودي</span>
+                            </label>
+                        </div>
+                        
+                        <div class="value-option">
+                            <input type="radio" id="value_100" name="card_value" value="100" 
+                                   {{ 'checked' if request.form.card_value == '100' }}>
+                            <label for="value_100" class="value-label">
+                                <span class="value-amount">100</span>
+                                <span class="value-currency">ريال سعودي</span>
+                            </label>
+                        </div>
+                        
+                        <div class="value-option">
+                            <input type="radio" id="value_150" name="card_value" value="150" 
+                                   {{ 'checked' if request.form.card_value == '150' }}>
+                            <label for="value_150" class="value-label">
+                                <span class="value-amount">150</span>
+                                <span class="value-currency">ريال سعودي</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">
+                        <i class="fas fa-comment"></i>
+                        رسالة البطاقة (اختياري)
+                    </label>
+                    <textarea id="message" name="message" 
+                              placeholder="أدخل رسالة شخصية للبطاقة">{{ request.form.message or '' }}</textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        إنشاء البطاقة
+                    </button>
+                    <a href="{{ url_for('admin_cards') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        إلغاء
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- الناف بار السفلي -->
+    <div class="bottom-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="{{ url_for('admin_cards') }}" class="nav-item">
+                <i class="fas fa-gift"></i>
+                <span>البطاقات</span>
+            </a>
+            <a href="{{ url_for('admin_add_card') }}" class="nav-item active">
+                <i class="fas fa-plus"></i>
+                <span>إضافة</span>
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>المستخدمين</span>
+            </a>
+            <a href="{{ url_for('admin_reports') }}" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>التقارير</span>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // التحقق من صحة رقم الهاتف
+        document.getElementById('recipient_phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            e.target.value = value;
+        });
+        
+        // التحقق من النموذج قبل الإرسال
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const phone = document.getElementById('recipient_phone').value;
+            if (phone.length !== 10 || !phone.startsWith('05')) {
+                e.preventDefault();
+                alert('يرجى إدخال رقم هاتف صحيح يبدأ بـ 05 ويتكون من 10 أرقام');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
