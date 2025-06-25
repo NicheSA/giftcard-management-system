@@ -138,6 +138,13 @@
                 <h2>تمت عملية الدفع بنجاح!</h2>
                 <p>شكراً لك! تم إنشاء بطاقة الإهداء الخاصة بك بنجاح وهي جاهزة الآن.</p>
                 <p>يمكنك الآن عرض البطاقة أو مشاركتها مع المستلم.</p>
+                <div class="card-content">
+                    <div class="card-logo">
+                        {% if card.logo_image %}
+                            <img src="{{ url_for('static', filename='uploads/logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                        {% endif %}
+                    </div>
+                </div>
             </div>
             
             <div class="transaction-details">

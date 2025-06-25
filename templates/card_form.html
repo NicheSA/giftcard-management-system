@@ -81,19 +81,24 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-credit-card"></i> متابعة للدفع
-                </button>
+                <div class="form-buttons">
+                    <button type="button" class="btn-secondary" onclick="previewActualCard()">
+                        <i class="fas fa-eye"></i> معاينة البطاقة الفعلية
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-credit-card"></i> متابعة للدفع
+                    </button>
+                </div>
             </form>
         </main>
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}'">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';"> 
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button active" onclick="window.location.href='{{ url_for('products') }}'">
+            <div class="nav-item add-button active" onclick="window.location.href='{{ url_for('products') }}';"> 
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -155,6 +160,28 @@
             document.getElementById('preview-from').textContent = fromName;
             document.getElementById('preview-to').textContent = toName;
             document.getElementById('preview-message').textContent = message;
+        }
+        
+        function previewActualCard() {
+            // التحقق من ملء جميع الحقول المطلوبة
+            const fromName = document.getElementById('from_name').value.trim();
+            const toName = document.getElementById('to_name').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const productId = document.getElementById('product_id').value;
+            
+            if (!fromName || !toName || !message || !productId) {
+                alert('يرجى ملء جميع الحقول المطلوبة أولاً');
+                return;
+            }
+            
+            // حفظ البيانات مؤقتاً في sessionStorage
+            sessionStorage.setItem('previewFromName', fromName);
+            sessionStorage.setItem('previewToName', toName);
+            sessionStorage.setItem('previewMessage', message);
+            sessionStorage.setItem('previewProductId', productId);
+            
+            // فتح صفحة المعاينة في نافذة جديدة
+            window.open('/test/card-design?preview=true', '_blank');
         }
     </script>
 </body>

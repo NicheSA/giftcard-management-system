@@ -86,7 +86,7 @@ class ProductManager:
                 return product
         return None
     
-    def add_product(self, name, price, background_color):
+    def add_product(self, name, price, background_color, logo_image=None):
         """إضافة منتج جديد"""
         try:
             with open(self.products_file, 'r', encoding='utf-8') as f:
@@ -97,6 +97,7 @@ class ProductManager:
                 'name': name,
                 'price': int(price),
                 'background_color': background_color,
+                'logo_image': logo_image,
                 'created_at': datetime.now().isoformat(),
                 'is_active': True
             }
@@ -111,7 +112,7 @@ class ProductManager:
             print(f"خطأ في إضافة المنتج: {str(e)}")
             return None
     
-    def update_product(self, product_id, name, price, background_color):
+    def update_product(self, product_id, name, price, background_color, logo_image=None):
         """تحديث منتج موجود"""
         try:
             with open(self.products_file, 'r', encoding='utf-8') as f:
@@ -119,12 +120,18 @@ class ProductManager:
             
             for i, product in enumerate(products):
                 if product['id'] == product_id:
-                    products[i].update({
+                    update_data = {
                         'name': name,
                         'price': int(price),
                         'background_color': background_color,
                         'updated_at': datetime.now().isoformat()
-                    })
+                    }
+                    
+                    # تحديث الشعار فقط إذا تم توفيره
+                    if logo_image is not None:
+                        update_data['logo_image'] = logo_image
+                    
+                    products[i].update(update_data)
                     
                     with open(self.products_file, 'w', encoding='utf-8') as f:
                         json.dump(products, f, ensure_ascii=False, indent=2)

@@ -28,6 +28,11 @@
                         <!-- بطاقة {{ product_type }} بقيمة {{ product.price }} ريال -->
                         <div class="product-card" data-type="{{ product.name }}" data-value="{{ product.price }}" data-product-id="{{ product.id }}" onclick="selectCard(this)">
                             <div class="product-preview" data-type="{{ product.name }}" style="background: linear-gradient(135deg, {{ product.background_color }} 0%, {{ product.background_color }} 100%);">
+                                {% if product.logo_image %}
+                                <div class="product-logo" style="background-color:rgb(87, 87, 87);  margin-top: 20px;">
+                                    <img src="{{ url_for('static', filename=product.logo_image) }}" alt="{{ product.name }} logo">
+                                </div>
+                                {% endif %}
                                 <div class="preview-badge">{{ product.name }}</div>
                                 <div class="preview-value">{{ product.price }} ريال</div>
                                 <div class="preview-content">
@@ -153,6 +158,27 @@
             margin: 10px 0;
             font-style: italic;
             opacity: 0.9;
+        }
+        
+        .product-logo {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+        
+        .product-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
         }
     </style>
 </body>

@@ -11,9 +11,10 @@ from config import AppConfig
 from paymob_intention_client import paymob_intention_client, process_payment_intention
 from validators import CardDataValidator, UserDataValidator, UserDataError
 from exceptions import CardDataValidationError, PaymobError
+from product_manager import ProductManager
 from admin_manager import AdminManager
 from card_manager import CardManager
-from product_manager import ProductManager
+from code_manager import CodeManager
 
 # إعداد نظام السجلات
 logging.basicConfig(level=logging.INFO)
@@ -26,10 +27,11 @@ app.secret_key = AppConfig.SECRET_KEY
 DATA_FOLDER = AppConfig.DATA_FOLDER
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-# إنشاء مدير الإدارة ومدير البطاقات ومدير المنتجات
+# إنشاء مدير الإدارة ومدير البطاقات ومدير المنتجات ومدير الأكواد
 admin_manager = AdminManager()
 card_manager = CardManager()
 product_manager = ProductManager()
+code_manager = CodeManager()
 
 @app.route('/')
 def index():
@@ -137,8 +139,23 @@ def save_card():
         # التحقق من صحة البيانات
         validated_data = CardDataValidator.validate_card_data(form_data)
         
-        # توليد كود عشوائي مكون من 6 أرقام
-        random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        # تحديد الكود بناءً على طريقة الكود المحددة
+        code_method = code_manager.get_code_method()
+        card_code = None
+        
+        if code_method == 'system':
+            # استخدام كود من النظام
+            available_code = code_manager.get_available_code(int(validated_data['card_value']))
+            if available_code:
+                card_code = available_code['code']
+                logger.info(f"تم استخدام كود من النظام: {card_code}")
+            else:
+                # إذا لم يوجد كود متاح، استخدم كود عشوائي
+                card_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+                logger.warning(f"لا يوجد كود متاح في النظام للقيمة {validated_data['card_value']}, تم توليد كود عشوائي: {card_code}")
+        else:
+            # توليد كود عشوائي مكون من 6 أرقام
+            card_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         
         # إنشاء بطاقة جديدة
         card_data = {
@@ -148,7 +165,7 @@ def save_card():
             'sender_name': validated_data['sender_name'],
             'recipient_name': validated_data['recipient_name'],
             'message': message,
-            'random_code': random_code,
+            'random_code': card_code,
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'user_phone': validated_data['user_phone'],
             'payment_status': 'pending'
@@ -360,6 +377,115 @@ def view_card(card_id):
     
     return render_template('card_view.html', card=card)
 
+@app.route('/test/card-design')
+def test_card_design():
+    """صفحة اختبار تصميم البطاقات مع إمكانية اختيار البطاقة الفردية"""
+    try:
+        # الحصول على جميع البطاقات المتاحة (النشطة فقط)
+        all_products = product_manager.get_all_products()
+        
+        # فلترة البطاقات النشطة فقط وإضافة معلومات إضافية
+        active_products = []
+        for product in all_products:
+            if product.get('is_active', True) and not product.get('deleted_at'):
+                active_products.append({
+                    'id': product['id'],
+                    'name': product['name'],
+                    'price': product['price'],
+                    'background_color': product['background_color'],
+                    'logo_image': product.get('logo_image', ''),
+                    'display_name': f"{product['name']} - {product['price']} ريال"
+                })
+        
+        # الحصول على طريقة الكود الحالية
+        code_method = code_manager.get_code_method()
+        
+        return render_template('card_design_test.html', 
+                             product_types=active_products, 
+                             code_method=code_method)
+    
+    except Exception as e:
+        logger.error(f"خطأ في تحميل صفحة اختبار التصميم: {str(e)}")
+        # في حالة الخطأ، عرض أنواع افتراضية
+        default_types = [
+            {'name': 'زواج', 'background_color': '#ff6b6b', 'logo_image': ''},
+            {'name': 'مولود', 'background_color': '#4ecdc4', 'logo_image': ''},
+            {'name': 'تخرج', 'background_color': '#f39c12', 'logo_image': ''},
+            {'name': 'عيد ميلاد', 'background_color': '#e74c3c', 'logo_image': ''}
+        ]
+        return render_template('card_design_test.html', 
+                             product_types=default_types, 
+                             code_method='random')
+
+@app.route('/api/get-preview-code/<int:price>')
+def get_preview_code(price):
+    """جلب كود للمعاينة حسب طريقة الكود المحددة"""
+    try:
+        code_method = code_manager.get_code_method()
+        
+        if code_method == 'system':
+            # استخدام كود من النظام
+            available_code = code_manager.get_available_code(price)
+            if available_code:
+                return jsonify({
+                    'success': True,
+                    'code': available_code['code'],
+                    'method': 'system',
+                    'message': 'تم جلب كود من النظام'
+                })
+            else:
+                # إذا لم يوجد كود متاح، استخدم كود عشوائي
+                random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+                return jsonify({
+                    'success': True,
+                    'code': random_code,
+                    'method': 'random_fallback',
+                    'message': 'لا يوجد كود متاح في النظام، تم توليد كود عشوائي'
+                })
+        else:
+            # توليد كود عشوائي
+            random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            return jsonify({
+                'success': True,
+                'code': random_code,
+                'method': 'random',
+                'message': 'تم توليد كود عشوائي'
+            })
+            
+    except Exception as e:
+        logger.error(f"خطأ في جلب كود المعاينة: {str(e)}")
+        # في حالة الخطأ، إرجاع كود عشوائي
+        random_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        return jsonify({
+            'success': False,
+            'code': random_code,
+            'method': 'error_fallback',
+            'message': 'حدث خطأ، تم توليد كود عشوائي'
+        })
+
+@app.route('/test/payment-success')
+def test_payment_success():
+    """مسار مؤقت لاختبار صفحة نجاح الدفع بدون المرور بعملية الدفع"""
+    # بيانات تجريبية للبطاقة
+    test_card_data = {
+        'id': 'test_123',
+        'card_type': 'نون',
+        'card_value': '100',
+        'to_name': 'أحمد محمد',
+        'from_name': 'سارة أحمد',
+        'message': 'كل عام وأنت بخير! أتمنى لك عاماً مليئاً بالسعادة والنجاح.',
+        'random_code': '789456',
+        'transaction_id': 'TXN_TEST_123456',
+        'created_at': '2024-01-15 14:30:00',
+        'payment_status': 'completed'
+    }
+    
+    return render_template('payment_success.html', 
+                          card_data=test_card_data, 
+                          card_id='test_123',
+                          transaction_id='TXN_TEST_123456',
+                          transaction_date='2024-01-15 14:30:00')
+
 # وظائف مساعدة للتعامل مع البيانات
 def get_user_cards(phone):
     """استرجاع بطاقات المستخدم"""
@@ -392,6 +518,24 @@ def save_card_data(card_data):
         # حفظ البيانات
         with open(cards_file, 'w', encoding='utf-8') as f:
             json.dump(cards, f, ensure_ascii=False, indent=4)
+            
+        # تحديث حالة الكود إلى مستخدم إذا كان من النظام
+        code_method = code_manager.get_code_method()
+        if code_method == 'system':
+            # البحث عن الكود في قاعدة البيانات وتحديث حالته
+            card_code = card_data.get('random_code')
+            if card_code:
+                # البحث عن الكود في قاعدة البيانات
+                all_codes = code_manager.get_all_codes()
+                for code_record in all_codes:
+                    if code_record['code'] == card_code and code_record['status'] == 'available':
+                        # تحديث حالة الكود إلى مستخدم
+                        success = code_manager.mark_code_as_used(code_record['id'], card_data['id'])
+                        if success:
+                            logger.info(f"تم تحديث حالة الكود {card_code} إلى مستخدم للبطاقة {card_data['id']}")
+                        else:
+                            logger.error(f"فشل في تحديث حالة الكود {card_code}")
+                        break
             
         logger.info(f"تم حفظ البطاقة بنجاح: {card_data['id']}")
             
@@ -527,8 +671,31 @@ def admin_add_card_post():
             'recipient_phone': request.form.get('recipient_phone', '').strip(),
             'card_type': request.form.get('card_type', '').strip(),
             'card_value': request.form.get('card_value', '').strip(),
-            'message': request.form.get('message', '').strip()
+            'message': request.form.get('message', '').strip(),
+            'background_color': request.form.get('background_color', '#667eea').strip()
         }
+        
+        # معالجة رفع الشعار
+        logo_filename = None
+        if 'logo_image' in request.files:
+            logo_file = request.files['logo_image']
+            if logo_file and logo_file.filename != '':
+                # التحقق من نوع الملف
+                allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+                if '.' in logo_file.filename and logo_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                    # إنشاء مجلد الشعارات إذا لم يكن موجوداً
+                    import os
+                    logos_dir = os.path.join('static', 'uploads', 'logos')
+                    os.makedirs(logos_dir, exist_ok=True)
+                    
+                    # حفظ الملف
+                    import uuid
+                    file_extension = logo_file.filename.rsplit('.', 1)[1].lower()
+                    logo_filename = f"{uuid.uuid4().hex}.{file_extension}"
+                    logo_path = os.path.join(logos_dir, logo_filename)
+                    logo_file.save(logo_path)
+                    
+                    card_data['logo_image'] = logo_filename
         
         # التحقق من البيانات
         if not all([card_data['recipient_name'], card_data['recipient_phone'], 
@@ -543,6 +710,8 @@ def admin_add_card_post():
             card_type=card_data['card_type'],
             card_value=int(card_data['card_value']),
             message=card_data['message'],
+            background_color=card_data['background_color'],
+            logo_image=card_data.get('logo_image'),
             created_by_admin=session.get('admin_email')
         )
         
@@ -782,8 +951,35 @@ def admin_products():
                     flash('السعر يجب أن يكون رقم صحيح', 'error')
                     return redirect(url_for('admin_products'))
                 
+                # التعامل مع رفع الشعار
+                logo_image = None
+                
+                if 'logo_image' in request.files:
+                    file = request.files['logo_image']
+                    if file and file.filename != '':
+                        # التحقق من نوع الملف
+                        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+                        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+                        
+                        if file_extension in allowed_extensions:
+                            # إنشاء اسم ملف فريد باللغة الإنجليزية
+                            import uuid
+                            unique_filename = f"product_logo_{uuid.uuid4().hex[:8]}.{file_extension}"
+                            
+                            # إنشاء مجلد الشعارات إذا لم يكن موجوداً
+                            logos_dir = os.path.join('static', 'uploads', 'product_logos')
+                            os.makedirs(logos_dir, exist_ok=True)
+                            
+                            # حفظ الملف
+                            file_path = os.path.join(logos_dir, unique_filename)
+                            file.save(file_path)
+                            logo_image = f"uploads/product_logos/{unique_filename}"
+                        else:
+                            flash('نوع الملف غير مدعوم. يرجى استخدام PNG, JPG, JPEG, GIF, أو SVG', 'error')
+                            return redirect(url_for('admin_products'))
+                
                 # استخدام نوع المنتج كاسم المنتج
-                product_manager.add_product(product_type, price, background_color)
+                product_manager.add_product(product_type, price, background_color, logo_image)
                 flash('تم إضافة المنتج بنجاح', 'success')
                 
             except Exception as e:
@@ -814,7 +1010,48 @@ def admin_products():
                     flash('السعر يجب أن يكون رقم صحيح', 'error')
                     return redirect(url_for('admin_products'))
                 
-                product_manager.update_product(product_id, product_type, price, background_color)
+                # الحصول على الشعار القديم لحذفه لاحقاً
+                old_product = product_manager.get_product_by_id(product_id)
+                old_logo_path = None
+                if old_product and old_product.get('logo_image'):
+                    old_logo_path = os.path.join('static', old_product['logo_image'])
+                
+                # التعامل مع رفع الشعار
+                logo_image = None
+                if 'logo_image' in request.files:
+                    file = request.files['logo_image']
+                    if file and file.filename != '':
+                        # التحقق من نوع الملف
+                        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
+                        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+                        
+                        if file_extension in allowed_extensions:
+                            # إنشاء اسم ملف فريد باللغة الإنجليزية
+                            import uuid
+                            unique_filename = f"product_logo_{uuid.uuid4().hex[:8]}.{file_extension}"
+                            
+                            # إنشاء مجلد الشعارات إذا لم يكن موجوداً
+                            logos_dir = os.path.join('static', 'uploads', 'product_logos')
+                            os.makedirs(logos_dir, exist_ok=True)
+                            
+                            # حفظ الملف
+                            file_path = os.path.join(logos_dir, unique_filename)
+                            file.save(file_path)
+                            logo_image = f"uploads/product_logos/{unique_filename}"
+                        else:
+                            flash('نوع الملف غير مدعوم. يرجى استخدام PNG, JPG, JPEG, GIF, أو SVG', 'error')
+                            return redirect(url_for('admin_products'))
+                
+                product_manager.update_product(product_id, product_type, price, background_color, logo_image)
+                
+                # حذف الشعار القديم إذا تم رفع شعار جديد
+                if logo_image and old_logo_path and os.path.exists(old_logo_path):
+                    try:
+                        os.remove(old_logo_path)
+                        logger.info(f"تم حذف الشعار القديم: {old_logo_path}")
+                    except Exception as e:
+                        logger.warning(f"فشل في حذف الشعار القديم {old_logo_path}: {str(e)}")
+                
                 flash('تم تحديث المنتج بنجاح', 'success')
                 
             except Exception as e:
@@ -958,7 +1195,7 @@ def admin_delete_product(product_id):
 
 @app.route('/admin/logout')
 def admin_logout():
-    """تسجيل خروج الإدارة"""
+    """تسجيل خروج المدير"""
     session.pop('admin_id', None)
     session.pop('admin_email', None)
     session.pop('admin_role', None)
@@ -966,6 +1203,141 @@ def admin_logout():
     
     flash('تم تسجيل الخروج بنجاح', 'success')
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/codes')
+def admin_codes():
+    """صفحة إدارة الأكواد"""
+    if not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    
+    try:
+        # جلب جميع المنتجات للقائمة المنسدلة
+        products = product_manager.get_all_products()
+        
+        # جلب جميع الأكواد
+        codes = code_manager.get_all_codes()
+        
+        # جلب الطريقة الحالية
+        current_method = code_manager.get_code_method()
+        
+        return render_template('admin_codes.html', 
+                             products=products,
+                             codes=codes,
+                             current_method=current_method)
+    except Exception as e:
+        logger.error(f"خطأ في صفحة إدارة الأكواد: {str(e)}")
+        flash('حدث خطأ في تحميل الصفحة', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/codes/method', methods=['POST'])
+def admin_set_code_method():
+    """تحديد طريقة اختيار الكود"""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'غير مصرح'}), 403
+    
+    try:
+        data = request.get_json()
+        method = data.get('method')
+        
+        if method in ['random', 'system']:
+            code_manager.set_code_method(method)
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': 'طريقة غير صحيحة'}), 400
+    except Exception as e:
+        logger.error(f"خطأ في تحديد طريقة الكود: {str(e)}")
+        return jsonify({'error': 'حدث خطأ'}), 500
+
+@app.route('/admin/codes/add-manual', methods=['POST'])
+def admin_add_codes_manual():
+    """إضافة أكواد يدوياً"""
+    if not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    
+    try:
+        code = request.form.get('code', '').strip().upper()
+        price = request.form.get('price', '').strip()
+        quantity = int(request.form.get('quantity', 1))
+        
+        if not code or not price:
+            flash('جميع الحقول مطلوبة', 'error')
+            return redirect(url_for('admin_codes'))
+        
+        # التحقق من صحة السعر
+        try:
+            price = int(price)
+        except ValueError:
+            flash('السعر يجب أن يكون رقماً صحيحاً', 'error')
+            return redirect(url_for('admin_codes'))
+        
+        # إضافة الأكواد
+        added_codes = code_manager.add_multiple_codes(code, price, quantity)
+        
+        if added_codes:
+            flash(f'تم إضافة {len(added_codes)} كود بنجاح', 'success')
+        else:
+            flash('فشل في إضافة الأكواد', 'error')
+        return redirect(url_for('admin_codes'))
+        
+    except Exception as e:
+        logger.error(f"خطأ في إضافة الأكواد يدوياً: {str(e)}")
+        flash('حدث خطأ في إضافة الأكواد', 'error')
+        return redirect(url_for('admin_codes'))
+
+@app.route('/admin/codes/upload', methods=['POST'])
+def admin_upload_codes():
+    """رفع ملف الأكواد"""
+    if not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    
+    try:
+        if 'codes_file' not in request.files:
+            flash('لم يتم اختيار ملف', 'error')
+            return redirect(url_for('admin_codes'))
+        
+        file = request.files['codes_file']
+        if file.filename == '':
+            flash('لم يتم اختيار ملف', 'error')
+            return redirect(url_for('admin_codes'))
+        
+        if file and file.filename.lower().endswith(('.csv', '.txt')):
+            # قراءة محتوى الملف
+            content = file.read().decode('utf-8')
+            
+            # استيراد الأكواد
+            added_codes, errors = code_manager.import_codes_from_csv(content)
+            
+            if added_codes:
+                flash(f'تم إضافة {len(added_codes)} كود بنجاح', 'success')
+            
+            if errors:
+                flash(f'أخطاء: {"; ".join(errors[:5])}', 'error')
+            
+        else:
+            flash('نوع الملف غير مدعوم. يرجى استخدام CSV أو TXT', 'error')
+        
+        return redirect(url_for('admin_codes'))
+        
+    except Exception as e:
+        logger.error(f"خطأ في رفع ملف الأكواد: {str(e)}")
+        flash('حدث خطأ في رفع الملف', 'error')
+        return redirect(url_for('admin_codes'))
+
+@app.route('/admin/codes/delete/<code_id>', methods=['POST'])
+def admin_delete_code(code_id):
+    """حذف كود"""
+    if not session.get('is_admin'):
+        return jsonify({'error': 'غير مصرح'}), 403
+    
+    try:
+        success = code_manager.delete_code(code_id)
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': 'فشل في حذف الكود'}), 400
+    except Exception as e:
+        logger.error(f"خطأ في حذف الكود {code_id}: {str(e)}")
+        return jsonify({'error': 'حدث خطأ'}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

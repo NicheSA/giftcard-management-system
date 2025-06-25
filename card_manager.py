@@ -71,7 +71,7 @@ class CardManager:
         
         return stats
     
-    def create_card(self, card_data):
+    def create_card(self, recipient_name, recipient_phone, card_type, card_value, message='', background_color='#667eea', logo_image=None, created_by_admin=None):
         """إنشاء بطاقة جديدة من الداشبورد الإداري"""
         try:
             # إنشاء معرف فريد للبطاقة
@@ -83,20 +83,23 @@ class CardManager:
             
             new_card = {
                 'id': card_id,
-                'card_type': card_data['card_type'],
-                'card_value': float(card_data['card_value']),
-                'sender_name': card_data['sender_name'],
-                'recipient_name': card_data['recipient_name'],
-                'message': card_data.get('message', ''),
+                'card_type': card_type,
+                'card_value': float(card_value),
+                'sender_name': created_by_admin or 'الإدارة',
+                'recipient_name': recipient_name,
+                'recipient_phone': recipient_phone,
+                'message': message,
+                'background_color': background_color,
+                'logo_image': logo_image,
                 'random_code': random_code,
                 'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'user_phone': card_data.get('user_phone', 'admin'),
+                'user_phone': recipient_phone,
                 'payment_status': 'completed',  # البطاقات المنشأة من الداشبورد تعتبر مدفوعة
                 'created_by_admin': True
             }
             
             # حفظ البطاقة
-            phone = card_data.get('user_phone', 'admin')
+            phone = recipient_phone
             cards_file = os.path.join(self.data_folder, f'{phone}_cards.json')
             
             cards = []

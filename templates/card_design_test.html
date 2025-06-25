@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تصميم البطاقات</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('home') }}" class="back-button">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1>اختبار تصميم البطاقات</h1>
+        </header>
+        
+        <main>
+            <!-- قسم اختيار البطاقة -->
+            <div class="card-type-selector">
+                <label for="cardTypeSelect">اختر البطاقة:</label>
+                <select id="cardTypeSelect" onchange="updateCardDesign()">
+                    <option value="">-- اختر البطاقة --</option>
+                    {% for product in product_types %}
+                    <option value="{{ product.name }}" 
+                            data-id="{{ product.id }}"
+                            data-price="{{ product.price }}"
+                            data-color="{{ product.background_color }}" 
+                            data-logo="{{ product.logo_image or '' }}"
+                            data-display="{{ product.display_name }}">
+                        {{ product.display_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- قسم معلومات البطاقة المحددة -->
+            <div class="selected-card-info" id="selectedCardInfo" style="display: none;">
+                <h3>معلومات البطاقة المحددة</h3>
+                <div class="card-details">
+                    <p><strong>اسم البطاقة:</strong> <span id="selectedCardName">-</span></p>
+                    <p><strong>السعر:</strong> <span id="selectedCardPrice">-</span> ريال</p>
+                    <p><strong>معرف البطاقة:</strong> <span id="selectedCardId">-</span></p>
+                </div>
+            </div>
+            
+            <!-- قسم معلومات طريقة الكود -->
+            <div class="code-method-info" style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196F3;">
+                <h4 style="margin: 0 0 10px 0; color: #1976D2;">🔧 طريقة توليد الأكواد الحالية</h4>
+                <p style="margin: 0; color: #555;">
+                    {% if code_method == 'system' %}
+                        <strong>أكواد النظام:</strong> سيتم استخدام أكواد محفوظة مسبقاً في النظام حسب قيمة البطاقة
+                    {% else %}
+                        <strong>أكواد عشوائية:</strong> سيتم توليد أكواد عشوائية جديدة لكل بطاقة
+                    {% endif %}
+                </p>
+                <small style="color: #666;">يمكن تغيير هذا الإعداد من لوحة الإدارة > إدارة الأكواد</small>
+            </div>
+
+            <!-- قسم معاينة البطاقة -->
+            <div class="card-preview-section">
+                <h3>معاينة البطاقة</h3>
+                <div class="gift-card" id="previewCard" data-type="عام" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-content">
+                        <div class="card-logo">
+                            <img id="cardLogo" src="" alt="شعار البطاقة" class="logo-image">
+                        </div>
+                        <div class="to-section">
+                            <span class="to-label" style="font-size: 12px;">إلى</span>
+                            <span class="to-name " style="font-size: 12px;"  id="toName">أحمد محمد</span>
+                        </div>
+                        
+                        <div class="card-message" id="cardMessage">
+                            كل عام وأنت بخير! أتمنى لك عاماً مليئاً بالسعادة والنجاح.
+                        </div>
+                        
+                        <div class="from-section">
+                            <span class="from-label"  style="font-size: 12px;">من:</span>
+                            <span class="from-name" style="font-size: 12px;" id="fromName">سارة أحمد</span>
+                        </div>
+                        
+                        <div class="card-code">
+                            <span id="randomCode">789456</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم تخصيص البيانات -->
+            <div class="card-customization">
+                <h3>تخصيص البيانات</h3>
+                <div class="form-group">
+                    <label for="toNameInput">اسم المستلم:</label>
+                    <input type="text" id="toNameInput" value="أحمد محمد" onchange="updateCardData()">
+                </div>
+                <div class="form-group">
+                    <label for="fromNameInput">اسم المرسل:</label>
+                    <input type="text" id="fromNameInput" value="سارة أحمد" onchange="updateCardData()">
+                </div>
+                <div class="form-group">
+                    <label for="messageInput">الرسالة:</label>
+                    <textarea id="messageInput" onchange="updateCardData()">كل عام وأنت بخير! أتمنى لك عاماً مليئاً بالسعادة والنجاح.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="codeInput">رمز البطاقة:</label>
+                    <input type="text" id="codeInput" value="789456" onchange="updateCardData()">
+                </div>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div class="card-actions">
+                <button class="btn-secondary" onclick="downloadCard()">
+                    <i class="fas fa-download"></i> تحميل البطاقة
+                </button>
+                <button class="btn-primary" onclick="shareCard()">
+                    <i class="fas fa-share-alt"></i> مشاركة البطاقة
+                </button>
+            </div>
+        </main>
+        
+        <!-- شريط التنقل السفلي الثابت -->
+        <nav class="bottom-navbar">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">>
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">>
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </nav>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function updateCardDesign() {
+            const select = document.getElementById('cardTypeSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const previewCard = document.getElementById('previewCard');
+            const cardLogo = document.getElementById('cardLogo');
+            
+            if (selectedOption.value) {
+                const cardId = selectedOption.getAttribute('data-id');
+                const cardType = selectedOption.value;
+                const cardPrice = selectedOption.getAttribute('data-price');
+                const backgroundColor = selectedOption.getAttribute('data-color');
+                const logoImage = selectedOption.getAttribute('data-logo');
+                const displayName = selectedOption.getAttribute('data-display');
+                
+                // تحديث معلومات البطاقة
+                previewCard.setAttribute('data-type', cardType);
+                previewCard.setAttribute('data-id', cardId);
+                previewCard.setAttribute('data-price', cardPrice);
+                
+                // تحديث لون الخلفية
+                if (backgroundColor) {
+                    previewCard.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor} 100%)`;
+                }
+                
+                // تحديث الشعار
+                if (logoImage && logoImage.trim() !== '') {
+                    cardLogo.src = `{{ url_for('static', filename='') }}${logoImage}`;
+                    cardLogo.style.display = 'block';
+                    console.log('تم تحديث الشعار:', logoImage);
+                } else {
+                    cardLogo.style.display = 'none';
+                    console.log('لا يوجد شعار للعرض');
+                }
+                
+                // عرض معلومات البطاقة في الواجهة
+                document.getElementById('selectedCardInfo').style.display = 'block';
+                document.getElementById('selectedCardName').textContent = cardType;
+                document.getElementById('selectedCardPrice').textContent = cardPrice;
+                document.getElementById('selectedCardId').textContent = cardId;
+                
+                // جلب كود مناسب للبطاقة
+                fetchPreviewCode(cardPrice);
+                
+                // عرض معلومات البطاقة المحددة في وحدة التحكم للمطورين
+                console.log(`تم اختيار البطاقة: ${displayName} (ID: ${cardId}, السعر: ${cardPrice} ريال)`);
+            } else {
+                // إعادة تعيين التصميم الافتراضي
+                previewCard.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                previewCard.removeAttribute('data-id');
+                previewCard.removeAttribute('data-price');
+                cardLogo.style.display = 'none';
+                
+                // إخفاء معلومات البطاقة
+                document.getElementById('selectedCardInfo').style.display = 'none';
+                
+                // إعادة تعيين الكود إلى القيمة الافتراضية
+                document.getElementById('codeInput').value = '789456';
+                updateCardData();
+            }
+        }
+        
+        // التحقق من وجود بيانات المعاينة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPreview = urlParams.get('preview') === 'true';
+            
+            if (isPreview) {
+                // استرجاع البيانات من sessionStorage
+                const fromName = sessionStorage.getItem('previewFromName');
+                const toName = sessionStorage.getItem('previewToName');
+                const message = sessionStorage.getItem('previewMessage');
+                const productId = sessionStorage.getItem('previewProductId');
+                
+                if (fromName && toName && message && productId) {
+                    // البحث عن المنتج المطابق في القائمة المنسدلة
+                    const select = document.getElementById('cardTypeSelect');
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].getAttribute('data-id') === productId) {
+                            select.selectedIndex = i;
+                            updateCardDesign();
+                            break;
+                        }
+                    }
+                    
+                    // تحديث بيانات البطاقة
+                    document.getElementById('toNameInput').value = toName;
+                    document.getElementById('fromNameInput').value = fromName;
+                    document.getElementById('messageInput').value = message;
+                    updateCardData();
+                    
+                    // مسح البيانات من sessionStorage
+                    sessionStorage.removeItem('previewFromName');
+                    sessionStorage.removeItem('previewToName');
+                    sessionStorage.removeItem('previewMessage');
+                    sessionStorage.removeItem('previewProductId');
+                    
+                    // إخفاء عناصر التحكم غير الضرورية في وضع المعاينة
+                    const cardTypeSelector = document.querySelector('.card-type-selector');
+                    const cardCustomization = document.querySelector('.card-customization');
+                    const cardActions = document.querySelector('.card-actions');
+                    
+                    if (cardTypeSelector) cardTypeSelector.style.display = 'none';
+                    if (cardCustomization) cardCustomization.style.display = 'none';
+                    if (cardActions) cardActions.style.display = 'none';
+                    
+                    // إضافة رسالة توضيحية
+                    const previewMessage = document.createElement('div');
+                    previewMessage.innerHTML = '<h2 style="text-align: center; color: #667eea; margin-bottom: 20px;">معاينة البطاقة الفعلية</h2>';
+                    const mainElement = document.querySelector('main');
+                    const cardPreviewSection = document.querySelector('.card-preview-section');
+                    if (mainElement && cardPreviewSection) {
+                        mainElement.insertBefore(previewMessage, cardPreviewSection);
+                    }
+                }
+            }
+        });
+        
+        function updateCardData() {
+            const toName = document.getElementById('toNameInput').value;
+            const fromName = document.getElementById('fromNameInput').value;
+            const message = document.getElementById('messageInput').value;
+            const code = document.getElementById('codeInput').value;
+            
+            document.getElementById('toName').textContent = toName;
+            document.getElementById('fromName').textContent = fromName;
+            document.getElementById('cardMessage').textContent = message;
+            document.getElementById('randomCode').textContent = code;
+        }
+        
+        function fetchPreviewCode(price) {
+            // عرض رسالة تحميل
+            const codeInput = document.getElementById('codeInput');
+            const originalValue = codeInput.value;
+            codeInput.value = 'جاري التحميل...';
+            codeInput.disabled = true;
+            
+            fetch(`/api/get-preview-code/${price}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        codeInput.value = data.code;
+                        
+                        // عرض رسالة توضيحية حسب طريقة الكود
+                        let message = '';
+                        switch(data.method) {
+                            case 'system':
+                                message = '✅ تم استخدام كود من النظام';
+                                break;
+                            case 'random_fallback':
+                                message = '⚠️ لا يوجد كود متاح في النظام، تم توليد كود عشوائي';
+                                break;
+                            case 'random':
+                                message = 'ℹ️ تم توليد كود عشوائي (الوضع الحالي)';
+                                break;
+                            case 'error_fallback':
+                                message = '❌ حدث خطأ، تم توليد كود عشوائي';
+                                break;
+                        }
+                        
+                        // عرض الرسالة لفترة قصيرة
+                        if (message) {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.style.cssText = `
+                                position: fixed;
+                                top: 20px;
+                                right: 20px;
+                                background: #333;
+                                color: white;
+                                padding: 10px 15px;
+                                border-radius: 5px;
+                                z-index: 1000;
+                                font-size: 14px;
+                                max-width: 300px;
+                            `;
+                            messageDiv.textContent = message;
+                            document.body.appendChild(messageDiv);
+                            
+                            setTimeout(() => {
+                                document.body.removeChild(messageDiv);
+                            }, 3000);
+                        }
+                        
+                        console.log('تم جلب الكود:', data);
+                    } else {
+                        codeInput.value = data.code || originalValue;
+                        console.error('خطأ في جلب الكود:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('خطأ في الاتصال:', error);
+                    codeInput.value = originalValue;
+                })
+                .finally(() => {
+                    codeInput.disabled = false;
+                    updateCardData();
+                });
+        }
+        
+        function downloadCard() {
+            const cardElement = document.querySelector('.gift-card');
+            
+            html2canvas(cardElement, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true
+            }).then(function(canvas) {
+                const dataURL = canvas.toDataURL('image/png');
+                
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataURL;
+                downloadLink.download = 'gift-card-design.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            });
+        }
+        
+        function shareCard() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'بطاقة إهداء',
+                    text: 'شاهد تصميم بطاقة الإهداء هذه',
+                    url: window.location.href
+                });
+            } else {
+                // نسخ الرابط إلى الحافظة
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    alert('تم نسخ الرابط إلى الحافظة');
+                });
+            }
+        }
+    </script>
+    
+    <style>
+        .card-type-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .selected-card-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .selected-card-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            text-align: center;
+        }
+        
+        .card-details {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .card-details p {
+            margin: 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .card-details strong {
+            color: #495057;
+        }
+        
+        .card-details span {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .card-type-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .card-type-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            color: #333;
+        }
+        
+        .card-type-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .card-preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-preview-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            text-align: center;
+        }
+        
+        .card-customization {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-customization h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</body>
+</html>

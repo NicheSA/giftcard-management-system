@@ -24,8 +24,13 @@
             
             <div class="gift-card" data-type="{{ card.card_type }}">
                 <div class="card-content">
+                    <div class="card-logo">
+                    {% if card.logo_image %}
+                        <img src="{{ url_for('static', filename='uploads/logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                    {% endif %}
+                </div>
                     <div class="to-section">
-                        <span class="to-label">إلى:</span>
+                        <span class="to-label">إلى</span>
                         <span class="to-name">{{ card.to_name }}</span>
                     </div>
                     

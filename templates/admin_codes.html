@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الأكواد - لوحة التحكم</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding-bottom: 80px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .code-method-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .method-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .method-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .method-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+        }
+        
+        .method-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .method-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .method-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .code-input-section {
+            display: none;
+        }
+        
+        .code-input-section.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .codes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .codes-table th,
+        .codes-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .codes-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .codes-table tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .code-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <a href="{{ url_for('admin_products') }}" class="back-button">
+            <i class="fas fa-arrow-right"></i>
+            العودة
+        </a>
+        <h1>إدارة الأكواد</h1>
+        <p>التحكم في طريقة اختيار وعرض الأكواد في البطاقات</p>
+    </div>
+    
+    <div class="admin-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- اختيار طريقة الكود -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                طريقة اختيار الكود
+            </h2>
+            
+            <div class="code-method-selector">
+                <div class="method-card {{ 'active' if current_method == 'random' else '' }}" onclick="selectMethod('random')">
+                    <div class="method-icon">
+                        <i class="fas fa-random"></i>
+                    </div>
+                    <div class="method-title">توليد عشوائي</div>
+                    <div class="method-description">يتم توليد كود عشوائي لكل بطاقة جديدة</div>
+                </div>
+                
+                <div class="method-card {{ 'active' if current_method == 'system' else '' }}" onclick="selectMethod('system')">
+                    <div class="method-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="method-title">أكواد النظام</div>
+                    <div class="method-description">استخدام أكواد محددة مسبقاً من قاعدة البيانات</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- إدارة أكواد النظام -->
+        <div class="section code-input-section" id="system-codes-section">
+            <h2 class="section-title">
+                <i class="fas fa-list"></i>
+                إدارة أكواد النظام
+            </h2>
+            
+            <!-- إضافة كود يدوي -->
+            <div class="input-group">
+                <h3>إضافة أكواد يدوياً</h3>
+                <form method="POST" action="{{ url_for('admin_add_codes_manual') }}">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                        <div>
+                            <label for="code">الكود</label>
+                            <input type="text" id="code" name="code" required placeholder="مثال: GIFT2024">
+                        </div>
+                        <div>
+                            <label for="price">القيمة (ريال)</label>
+                            <select id="price" name="price" required>
+                                <option value="">اختر القيمة</option>
+                                {% for product in products %}
+                                    <option value="{{ product.price }}">{{ product.price }} ريال</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="quantity">الكمية</label>
+                            <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                إضافة
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- رفع ملف -->
+            <div class="input-group">
+                <h3>رفع ملف الأكواد</h3>
+                <p style="color: #666; margin-bottom: 15px;">يجب أن يكون الملف بصيغة CSV ويحتوي على عمودين: الكود والقيمة</p>
+                
+                <!-- روابط تحميل القوالب -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-right: 4px solid #667eea;">
+                    <h4 style="color: #333; margin-bottom: 10px;">
+                        <i class="fas fa-download"></i>
+                        تحميل قوالب التنسيق
+                    </h4>
+                    <p style="color: #666; margin-bottom: 10px;">حمل القوالب الجاهزة لتسهيل عملية رفع الأكواد:</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="{{ url_for('static', filename='templates/codes_template.csv') }}" download class="btn" style="background: #28a745; color: white; text-decoration: none; font-size: 0.9rem; padding: 8px 15px;">
+                            <i class="fas fa-file-csv"></i>
+                            قالب CSV
+                        </a>
+                        <a href="{{ url_for('static', filename='templates/codes_template.txt') }}" download class="btn" style="background: #17a2b8; color: white; text-decoration: none; font-size: 0.9rem; padding: 8px 15px;">
+                            <i class="fas fa-file-alt"></i>
+                            قالب TXT
+                        </a>
+                        <a href="{{ url_for('static', filename='templates/README.md') }}" download class="btn" style="background: #6c757d; color: white; text-decoration: none; font-size: 0.9rem; padding: 8px 15px;">
+                            <i class="fas fa-info-circle"></i>
+                            دليل الاستخدام
+                        </a>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('admin_upload_codes') }}" enctype="multipart/form-data">
+                    <div class="file-upload-area" onclick="document.getElementById('codes-file').click()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4>اضغط لاختيار ملف أو اسحب الملف هنا</h4>
+                        <p>CSV, TXT (حد أقصى 5MB)</p>
+                        <input type="file" id="codes-file" name="codes_file" accept=".csv,.txt" style="display: none;" onchange="updateFileName(this)">
+                    </div>
+                    <div id="file-name" style="margin-top: 10px; color: #667eea; font-weight: 600;"></div>
+                    <button type="submit" class="btn btn-success" style="margin-top: 15px;">
+                        <i class="fas fa-upload"></i>
+                        رفع الملف
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- عرض الأكواد الحالية -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-table"></i>
+                الأكواد الحالية
+            </h2>
+            
+            {% if codes %}
+                <table class="codes-table">
+                    <thead>
+                        <tr>
+                            <th>الكود</th>
+                            <th>القيمة</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th>تاريخ الاستخدام</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for code in codes %}
+                        <tr>
+                            <td>{{ code.code }}</td>
+                            <td>{{ code.price }} ريال</td>
+                            <td>
+                                <span class="code-status {{ 'status-used' if code.status == 'used' else 'status-available' }}">
+                                    {{ 'مستخدم' if code.status == 'used' else 'متاح' }}
+                                </span>
+                            </td>
+                            <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
+                            <td>{{ code.used_at.strftime('%Y-%m-%d %H:%M') if code.used_at else '-' }}</td>
+                            <td>
+                                {% if code.status == 'available' %}
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCode('{{ code.id }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 40px;">لا توجد أكواد محفوظة حالياً</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function selectMethod(method) {
+            // إزالة الكلاس النشط من جميع البطاقات
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // إضافة الكلاس النشط للبطاقة المختارة
+            event.target.closest('.method-card').classList.add('active');
+            
+            // إظهار/إخفاء قسم أكواد النظام
+            const systemSection = document.getElementById('system-codes-section');
+            if (method === 'system') {
+                systemSection.classList.add('active');
+            } else {
+                systemSection.classList.remove('active');
+            }
+            
+            // حفظ الطريقة المختارة
+            fetch('/admin/codes/method', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({method: method})
+            });
+        }
+        
+        function updateFileName(input) {
+            const fileName = input.files[0]?.name;
+            const fileNameDiv = document.getElementById('file-name');
+            if (fileName) {
+                fileNameDiv.textContent = `الملف المختار: ${fileName}`;
+            }
+        }
+        
+        function deleteCode(codeId) {
+            if (confirm('هل أنت متأكد من حذف هذا الكود؟')) {
+                fetch(`/admin/codes/delete/${codeId}`, {
+                    method: 'POST'
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+        
+        // تفعيل السحب والإفلات
+        const uploadArea = document.querySelector('.file-upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('codes-file').files = files;
+                updateFileName(document.getElementById('codes-file'));
+            }
+        });
+        
+        // تفعيل القسم المناسب عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentMethod = '{{ current_method|default("random") }}';
+            if (currentMethod === 'system') {
+                document.getElementById('system-codes-section').classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
