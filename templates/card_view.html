@@ -17,34 +17,44 @@
         </header>
         
         <main>
-            <div class="card-top-info">
-                <div class="card-type-badge" data-type="{{ card.card_type }}">{{ card.card_type }}</div>
-                <div class="card-value-badge">{{ card.card_value }} ريال</div>
+            <!-- معلومات البطاقة المحفوظة -->
+            <div class="saved-card-info">
+                <h3>تفاصيل البطاقة</h3>
+                <div class="card-details">
+                    <p><strong>نوع البطاقة:</strong> <span>{{ card.card_type }}</span></p>
+                    <p><strong>القيمة:</strong> <span>{{ card.card_value }} ريال</span></p>
+                    <p><strong>رمز البطاقة:</strong> <span>{{ card.random_code if card.random_code else '000000' }}</span></p>
+                    <p><strong>تاريخ الإنشاء:</strong> <span>{{ card.created_at.strftime('%Y-%m-%d %H:%M') if card.created_at else 'غير محدد' }}</span></p>
+                </div>
             </div>
             
-            <div class="gift-card" data-type="{{ card.card_type }}">
-                <div class="card-content">
-                    <div class="card-logo">
-                    {% if card.logo_image %}
-                        <img src="{{ url_for('static', filename='uploads/logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
-                    {% endif %}
-                </div>
-                    <div class="to-section">
-                        <span class="to-label">إلى</span>
-                        <span class="to-name">{{ card.to_name }}</span>
-                    </div>
-                    
-                    <div class="card-message">
-                        {{ card.message }}
-                    </div>
-                    
-                    <div class="from-section">
-                        <span class="from-label">من:</span>
-                        <span class="from-name">{{ card.from_name }}</span>
-                    </div>
-                    
-                    <div class="card-code">
-                        <span id="random-code">{{ card.random_code if card.random_code else '000000' }}</span>
+            <!-- معاينة البطاقة -->
+            <div class="card-preview-section">
+                <h3>البطاقة النهائية</h3>
+                <div class="gift-card" data-type="{{ card.card_type }}" style="background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}">
+                    <div class="card-content">
+                        <div class="card-logo">
+                            {% if card.logo_image %}
+                                <img src="{{ url_for('static', filename='uploads/product_logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                            {% endif %}
+                        </div>
+                        <div class="to-section">
+                            <span class="to-label" style="font-size: 12px;">إلى</span>
+                            <span class="to-name" style="font-size: 12px;">{{ card.to_name }}</span>
+                        </div>
+                        
+                        <div class="card-message">
+                            {{ card.message }}
+                        </div>
+                        
+                        <div class="from-section">
+                            <span class="from-label" style="font-size: 12px;">من:</span>
+                            <span class="from-name" style="font-size: 12px;">{{ card.from_name }}</span>
+                        </div>
+                        
+                        <div class="card-code">
+                            <span id="random-code">{{ card.random_code if card.random_code else '000000' }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,10 +114,72 @@
         }
         
         function shareCard() {
-            // يمكن تنفيذ وظيفة المشاركة هنا
-            // مثلاً: نسخ رابط البطاقة أو مشاركتها عبر وسائل التواصل الاجتماعي
-            alert('تم نسخ رابط البطاقة!');
+            if (navigator.share) {
+                navigator.share({
+                    title: 'بطاقة إهداء',
+                    text: 'شاهد بطاقة الإهداء هذه',
+                    url: window.location.href
+                });
+            } else {
+                // نسخ الرابط إلى الحافظة
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    alert('تم نسخ رابط البطاقة إلى الحافظة');
+                });
+            }
         }
     </script>
+    
+    <style>
+        .saved-card-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .saved-card-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            text-align: center;
+        }
+        
+        .card-details {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .card-details p {
+            margin: 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .card-details strong {
+            color: #495057;
+        }
+        
+        .card-details span {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .card-preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-preview-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            text-align: center;
+        }
+    </style>
 </body>
 </html>

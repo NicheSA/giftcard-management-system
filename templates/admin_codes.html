@@ -243,6 +243,46 @@
             color: #721c24;
         }
         
+        /* تبويبات الأكواد */
+        .codes-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-btn:hover {
+            color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .alert {
             padding: 15px;
             border-radius: 8px;
@@ -393,51 +433,85 @@
             </div>
         </div>
         
-        <!-- عرض الأكواد الحالية -->
+        <!-- عرض الأكواد مع تبويبات منفصلة -->
         <div class="section">
             <h2 class="section-title">
-                <i class="fas fa-table"></i>
-                الأكواد الحالية
+                <i class="fas fa-list"></i>
+                إدارة الأكواد
             </h2>
             
-            {% if codes %}
-                <table class="codes-table">
-                    <thead>
-                        <tr>
-                            <th>الكود</th>
-                            <th>القيمة</th>
-                            <th>الحالة</th>
-                            <th>تاريخ الإنشاء</th>
-                            <th>تاريخ الاستخدام</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for code in codes %}
-                        <tr>
-                            <td>{{ code.code }}</td>
-                            <td>{{ code.price }} ريال</td>
-                            <td>
-                                <span class="code-status {{ 'status-used' if code.status == 'used' else 'status-available' }}">
-                                    {{ 'مستخدم' if code.status == 'used' else 'متاح' }}
-                                </span>
-                            </td>
-                            <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
-                            <td>{{ code.used_at.strftime('%Y-%m-%d %H:%M') if code.used_at else '-' }}</td>
-                            <td>
-                                {% if code.status == 'available' %}
+            <!-- تبويبات الأكواد -->
+            <div class="codes-tabs">
+                <button class="tab-btn active" onclick="showTab('available')">
+                    <i class="fas fa-check-circle"></i>
+                    الأكواد المتاحة ({{ available_codes|length if available_codes else 0 }})
+                </button>
+                <button class="tab-btn" onclick="showTab('used')">
+                    <i class="fas fa-times-circle"></i>
+                    الأكواد المستخدمة ({{ used_codes|length if used_codes else 0 }})
+                </button>
+            </div>
+            
+            <!-- محتوى تبويب الأكواد المتاحة -->
+            <div id="available-tab" class="tab-content active">
+                {% if available_codes %}
+                    <table class="codes-table">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>القيمة</th>
+                                <th>تاريخ الإنشاء</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for code in available_codes %}
+                            <tr>
+                                <td>{{ code.code }}</td>
+                                <td>{{ code.price }} ريال</td>
+                                <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
+                                <td>
                                     <button class="btn btn-danger btn-sm" onclick="deleteCode('{{ code.id }}')">
                                         <i class="fas fa-trash"></i>
+                                        حذف
                                     </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p style="text-align: center; color: #666; padding: 40px;">لا توجد أكواد محفوظة حالياً</p>
-            {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="text-align: center; color: #666; padding: 40px;">لا توجد أكواد متاحة حالياً</p>
+                {% endif %}
+            </div>
+            
+            <!-- محتوى تبويب الأكواد المستخدمة -->
+            <div id="used-tab" class="tab-content">
+                {% if used_codes %}
+                    <table class="codes-table">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>القيمة</th>
+                                <th>تاريخ الإنشاء</th>
+                                <th>تاريخ الاستخدام</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for code in used_codes %}
+                            <tr>
+                                <td>{{ code.code }}</td>
+                                <td>{{ code.price }} ريال</td>
+                                <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
+                                <td>{{ code.used_at.strftime('%Y-%m-%d %H:%M') if code.used_at else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="text-align: center; color: #666; padding: 40px;">لا توجد أكواد مستخدمة حالياً</p>
+                {% endif %}
+            </div>
         </div>
     </div>
     
@@ -519,6 +593,25 @@
                 document.getElementById('system-codes-section').classList.add('active');
             }
         });
+        
+        // وظائف التبويبات
+        function showTab(tabName) {
+            // إزالة الكلاس النشط من جميع الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // إزالة الكلاس النشط من جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // إضافة الكلاس النشط للزر المختار
+            event.target.classList.add('active');
+            
+            // إظهار المحتوى المناسب
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
     </script>
 </body>
 </html>

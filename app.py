@@ -142,13 +142,21 @@ def save_card():
         # تحديد الكود بناءً على طريقة الكود المحددة
         code_method = code_manager.get_code_method()
         card_code = None
+        code_record = None
         
         if code_method == 'system':
-            # استخدام كود من النظام
+            # استخدام كود من النظام (متاح فقط)
             available_code = code_manager.get_available_code(int(validated_data['card_value']))
             if available_code:
-                card_code = available_code['code']
-                logger.info(f"تم استخدام كود من النظام: {card_code}")
+                # التحقق مرة أخرى من توفر الكود قبل الاستخدام
+                code_validation = code_manager.validate_code_availability(available_code['code'])
+                if code_validation:
+                    card_code = available_code['code']
+                    code_record = available_code
+                    logger.info(f"تم استخدام كود من النظام: {card_code}")
+                else:
+                    logger.warning(f"الكود {available_code['code']} لم يعد متاحاً، سيتم توليد كود عشوائي")
+                    card_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             else:
                 # إذا لم يوجد كود متاح، استخدم كود عشوائي
                 card_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
@@ -156,6 +164,14 @@ def save_card():
         else:
             # توليد كود عشوائي مكون من 6 أرقام
             card_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # تحديث حالة الكود إلى مستخدم فوراً إذا كان من النظام
+        if code_method == 'system' and code_record:
+            success = code_manager.mark_code_as_used(code_record['id'])
+            if success:
+                logger.info(f"تم تحديث حالة الكود {card_code} إلى مستخدم")
+            else:
+                logger.error(f"فشل في تحديث حالة الكود {card_code}")
         
         # إنشاء بطاقة جديدة
         card_data = {
@@ -168,7 +184,9 @@ def save_card():
             'random_code': card_code,
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'user_phone': validated_data['user_phone'],
-            'payment_status': 'pending'
+            'payment_status': 'pending',
+            'code_method': code_method,
+            'code_record_id': code_record['id'] if code_record else None
         }
         
         # حفظ بيانات البطاقة في الجلسة للاستخدام في صفحة الدفع
@@ -538,23 +556,7 @@ def save_card_data(card_data):
         with open(cards_file, 'w', encoding='utf-8') as f:
             json.dump(cards, f, ensure_ascii=False, indent=4)
             
-        # تحديث حالة الكود إلى مستخدم إذا كان من النظام
-        code_method = code_manager.get_code_method()
-        if code_method == 'system':
-            # البحث عن الكود في قاعدة البيانات وتحديث حالته
-            card_code = card_data.get('random_code')
-            if card_code:
-                # البحث عن الكود في قاعدة البيانات
-                all_codes = code_manager.get_all_codes()
-                for code_record in all_codes:
-                    if code_record['code'] == card_code and code_record['status'] == 'available':
-                        # تحديث حالة الكود إلى مستخدم
-                        success = code_manager.mark_code_as_used(code_record['id'], card_data['id'])
-                        if success:
-                            logger.info(f"تم تحديث حالة الكود {card_code} إلى مستخدم للبطاقة {card_data['id']}")
-                        else:
-                            logger.error(f"فشل في تحديث حالة الكود {card_code}")
-                        break
+        # ملاحظة: تم تحديث حالة الكود مسبقاً عند إنشاء البطاقة
             
         logger.info(f"تم حفظ البطاقة بنجاح: {card_data['id']}")
             
@@ -1233,15 +1235,17 @@ def admin_codes():
         # جلب جميع المنتجات للقائمة المنسدلة
         products = product_manager.get_all_products()
         
-        # جلب جميع الأكواد
-        codes = code_manager.get_all_codes()
+        # جلب الأكواد المتاحة والمستخدمة بشكل منفصل
+        available_codes = code_manager.get_codes_by_status('available')
+        used_codes = code_manager.get_codes_by_status('used')
         
         # جلب الطريقة الحالية
         current_method = code_manager.get_code_method()
         
         return render_template('admin_codes.html', 
                              products=products,
-                             codes=codes,
+                             available_codes=available_codes,
+                             used_codes=used_codes,
                              current_method=current_method)
     except Exception as e:
         logger.error(f"خطأ في صفحة إدارة الأكواد: {str(e)}")

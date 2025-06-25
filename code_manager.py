@@ -329,3 +329,96 @@ class CodeManager:
                 errors.append(f'السطر {i}: الكود {code} موجود مسبقاً')
         
         return added_codes, errors
+    
+    def get_codes_by_status(self, status='available', price=None):
+        """جلب الأكواد حسب الحالة مع إمكانية التصفية بالسعر"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = "SELECT * FROM codes WHERE status = ?"
+            params = [status]
+            
+            if price is not None:
+                query += " AND price = ?"
+                params.append(price)
+            
+            query += " ORDER BY created_at DESC"
+            
+            cursor.execute(query, params)
+            codes = cursor.fetchall()
+            conn.close()
+            
+            return [dict(code) for code in codes]
+            
+        except Exception as e:
+            logger.error(f"خطأ في جلب الأكواد حسب الحالة: {str(e)}")
+            return []
+    
+    def validate_code_availability(self, code):
+        """التحقق من توفر الكود وعدم استخدامه"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute(
+                "SELECT * FROM codes WHERE code = ? AND status = 'available'",
+                (code.upper(),)
+            )
+            
+            result = cursor.fetchone()
+            conn.close()
+            
+            return dict(result) if result else None
+            
+        except Exception as e:
+            logger.error(f"خطأ في التحقق من توفر الكود: {str(e)}")
+            return None
+    
+    def get_used_codes_count(self, price=None):
+        """جلب عدد الأكواد المستخدمة"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            if price is not None:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM codes WHERE status = 'used' AND price = ?",
+                    (price,)
+                )
+            else:
+                cursor.execute("SELECT COUNT(*) FROM codes WHERE status = 'used'")
+            
+            count = cursor.fetchone()[0]
+            conn.close()
+            
+            return count
+            
+        except Exception as e:
+            logger.error(f"خطأ في جلب عدد الأكواد المستخدمة: {str(e)}")
+            return 0
+    
+    def get_available_codes_count(self, price=None):
+        """جلب عدد الأكواد المتاحة"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            if price is not None:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM codes WHERE status = 'available' AND price = ?",
+                    (price,)
+                )
+            else:
+                cursor.execute("SELECT COUNT(*) FROM codes WHERE status = 'available'")
+            
+            count = cursor.fetchone()[0]
+            conn.close()
+            
+            return count
+            
+        except Exception as e:
+            logger.error(f"خطأ في جلب عدد الأكواد المتاحة: {str(e)}")
+            return 0
