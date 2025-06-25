@@ -469,7 +469,7 @@
                             <tr>
                                 <td>{{ code.code }}</td>
                                 <td>{{ code.price }} ريال</td>
-                                <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
+                                <td>{{ code.created_at if code.created_at else '-' }}</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" onclick="deleteCode('{{ code.id }}')">
                                         <i class="fas fa-trash"></i>
@@ -502,8 +502,8 @@
                             <tr>
                                 <td>{{ code.code }}</td>
                                 <td>{{ code.price }} ريال</td>
-                                <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at else '-' }}</td>
-                                <td>{{ code.used_at.strftime('%Y-%m-%d %H:%M') if code.used_at else '-' }}</td>
+                                <td>{{ code.created_at if code.created_at else '-' }}</td>
+                                <td>{{ code.used_at if code.used_at else '-' }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

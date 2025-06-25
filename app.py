@@ -186,7 +186,9 @@ def save_card():
             'user_phone': validated_data['user_phone'],
             'payment_status': 'pending',
             'code_method': code_method,
-            'code_record_id': code_record['id'] if code_record else None
+            'code_record_id': code_record['id'] if code_record else None,
+            'background_color': product.get('background_color', '#667eea'),
+            'logo_image': product.get('logo_image')
         }
         
         # حفظ بيانات البطاقة في الجلسة للاستخدام في صفحة الدفع
