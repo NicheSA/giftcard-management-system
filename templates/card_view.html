@@ -24,14 +24,14 @@
                     <p><strong>نوع البطاقة:</strong> <span>{{ card.card_type }}</span></p>
                     <p><strong>القيمة:</strong> <span>{{ card.card_value }} ريال</span></p>
                     <p><strong>رمز البطاقة:</strong> <span>{{ card.random_code if card.random_code else '000000' }}</span></p>
-                    <p><strong>تاريخ الإنشاء:</strong> <span>{{ card.created_at.strftime('%Y-%m-%d %H:%M') if card.created_at else 'غير محدد' }}</span></p>
+                    <p><strong>تاريخ الإنشاء:</strong> <span>{{ card.created_at if card.created_at else 'غير محدد' }}</span></p>
                 </div>
             </div>
             
             <!-- معاينة البطاقة -->
             <div class="card-preview-section">
                 <h3>البطاقة النهائية</h3>
-                <div class="gift-card" data-type="{{ card.card_type }}" style="background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}">
+                <div class="gift-card" data-type="{{ card.card_type }}" style="background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};">
                     <div class="card-content">
                         <div class="card-logo">
                             {% if card.logo_image %}
