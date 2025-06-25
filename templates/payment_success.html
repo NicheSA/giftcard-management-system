@@ -140,8 +140,8 @@
                 <p>يمكنك الآن عرض البطاقة أو مشاركتها مع المستلم.</p>
                 <div class="card-content">
                     <div class="card-logo">
-                        {% if card.logo_image %}
-                            <img src="{{ url_for('static', filename='uploads/logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                        {% if card_data.logo_image %}
+                            <img src="{{ url_for('static', filename='uploads/logos/' + card_data.logo_image) }}" alt="شعار البطاقة" class="logo-image">
                         {% endif %}
                     </div>
                 </div>
