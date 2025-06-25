@@ -137,7 +137,10 @@
         {% endif %}
         
         <div class="action-buttons">
-            <a href="{{ url_for('index') }}" class="btn">إنشاء بطاقة جديدة</a>
+            {% if card_id %}
+            <a href="{{ url_for('view_card', card_id=card_id) }}" class="btn">عرض البطاقة</a>
+            {% endif %}
+            <a href="{{ url_for('card_form') }}" class="btn">إنشاء بطاقة جديدة</a>
             <a href="{{ url_for('products') }}" class="btn btn-secondary">عرض المنتجات</a>
         </div>
     </div>

@@ -237,15 +237,34 @@ def payment_success_intention():
     try:
         # التحقق من وجود معلومات الدفع في الجلسة
         payment_info = session.get('payment_info')
+        card_data = session.get('card_data')
         
         if not payment_info:
             logger.warning("لا توجد معلومات دفع في الجلسة")
             return redirect(url_for('index'))
         
+        # إذا كانت بيانات البطاقة موجودة، احفظها
+        card_id = None
+        if card_data and card_data.get('payment_status') != 'completed':
+            # تحديث حالة الدفع
+            card_data['payment_status'] = 'completed'
+            card_data['transaction_id'] = payment_info.get('client_secret', '')
+            
+            # حفظ البطاقة في قاعدة البيانات
+            save_card_data(card_data)
+            
+            # حفظ معرف البطاقة
+            card_id = card_data['id']
+            
+            # إزالة بيانات البطاقة من الجلسة
+            session.pop('card_data', None)
+            
+            logger.info(f"تم حفظ البطاقة بنجاح: {card_data['id']}")
+        
         logger.info("تم الوصول إلى صفحة نجاح الدفع باستخدام Intention API")
         
         # عرض صفحة النجاح
-        return render_template('payment_success_intention.html', payment_info=payment_info)
+        return render_template('payment_success_intention.html', payment_info=payment_info, card_id=card_id)
         
     except Exception as e:
         logger.error(f"خطأ في صفحة نجاح الدفع: {str(e)}")
