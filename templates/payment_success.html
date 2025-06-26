@@ -204,7 +204,14 @@
                 <p>يمكنك الآن عرض البطاقة أو مشاركتها مع المستلم.</p>
                 <!-- معاينة البطاقة -->
                 <div class="card-preview-section">
-                    <div class="gift-card" data-type="{{ card_data.card_type }}" style="{% if card_data.background_image %}background-image: url('{{ url_for('static', filename=card_data.background_image) }}'); background-size: cover; background-position: center;{% else %}background: {{ card_data.background_color if card_data.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};{% endif %}">
+                    <div class="gift-card" data-type="{{ card_data.card_type }}" 
+                         {% if card_data.background_image %}
+                         style="background-image: url('{{ url_for('static', filename=card_data.background_image) }}'); background-size: cover; background-position: center;"
+                         {% elif card_data.background_color %}
+                         style="background: {{ card_data.background_color }};"
+                         {% else %}
+                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+                         {% endif %}>
                         <div class="card-content">
                             <div class="card-logo">
                                 {% if card_data.logo_image %}
