@@ -31,7 +31,7 @@
             <!-- معاينة البطاقة -->
             <div class="card-preview-section">
                 <h3>البطاقة النهائية</h3>
-                <div class="gift-card" data-type="{{ card.card_type }}" style="background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};">
+                <div class="gift-card" data-type="{{ card.card_type }}" style="{% if card.background_image %}background-image: url('{{ url_for('static', filename=card.background_image) }}'); background-size: cover; background-position: center;{% else %}background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};{% endif %}">
                     <div class="card-content">
                         <div class="card-logo">
                             {% if card.logo_image %}
@@ -52,30 +52,27 @@
                             <span class="from-name" style="font-size: 12px;">{{ card.sender_name }}</span>
                         </div>
                         
+                        <div class="card-value">
+                            <span class="value-amount">{{ card.card_value }}</span>
+                            <span class="currency">ريال</span>
+                        </div>
+                        
                         <div class="card-code">
-                            <span id="random-code">{{ card.random_code if card.random_code else '000000' }}</span>
+                            <span class="code-label">رمز البطاقة:</span>
+                            <span class="code-value">{{ card.random_code if card.random_code else '000000' }}</span>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card-actions">
-                <button class="btn-secondary" onclick="downloadCard()">
-                    <i class="fas fa-download"></i> تحميل البطاقة
-                </button>
-                <button class="btn-primary" onclick="shareCard()">
-                    <i class="fas fa-share-alt"></i> مشاركة البطاقة
-                </button>
             </div>
         </main>
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}'">
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}'">
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -86,63 +83,19 @@
         </nav>
     </div>
     
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script>
-        function downloadCard() {
-            // تحديد عنصر البطاقة
-            const cardElement = document.querySelector('.gift-card');
-            
-            // تحويل البطاقة إلى صورة باستخدام html2canvas
-            html2canvas(cardElement, {
-                backgroundColor: null,
-                scale: 2, // جودة أعلى
-                logging: false,
-                useCORS: true
-            }).then(function(canvas) {
-                // تحويل الكانفاس إلى رابط تحميل
-                const dataURL = canvas.toDataURL('image/png');
-                
-                // إنشاء رابط تحميل وتنفيذه
-                const downloadLink = document.createElement('a');
-                downloadLink.href = dataURL;
-                downloadLink.download = 'بطاقة_إهداء.png';
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            });
-        }
-        
-        function shareCard() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'بطاقة إهداء',
-                    text: 'شاهد بطاقة الإهداء هذه',
-                    url: window.location.href
-                });
-            } else {
-                // نسخ الرابط إلى الحافظة
-                navigator.clipboard.writeText(window.location.href).then(function() {
-                    alert('تم نسخ رابط البطاقة إلى الحافظة');
-                });
-            }
-        }
-    </script>
-    
     <style>
         .saved-card-info {
-            background: #f8f9fa;
+            background: white;
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #667eea;
         }
         
         .saved-card-info h3 {
-            margin: 0 0 15px 0;
             color: #333;
-            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
         
         .card-details {
@@ -152,33 +105,148 @@
         
         .card-details p {
             margin: 0;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-details p:last-child {
+            border-bottom: none;
         }
         
         .card-details strong {
-            color: #495057;
+            color: #666;
+            font-weight: 600;
         }
         
         .card-details span {
-            color: #667eea;
-            font-weight: 600;
+            color: #333;
+            font-weight: 500;
         }
         
         .card-preview-section {
             background: white;
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 100px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .card-preview-section h3 {
-            margin: 0 0 20px 0;
             color: #333;
+            margin-bottom: 20px;
             text-align: center;
+            font-size: 18px;
+        }
+        
+        .gift-card {
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            margin: 0 auto;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+        }
+        
+        .card-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo-image {
+            max-width: 80px;
+            max-height: 40px;
+            object-fit: contain;
+        }
+        
+        .to-section, .from-section {
+            text-align: right;
+        }
+        
+        .card-message {
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+        
+        .card-value {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-code {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .bottom-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .nav-item:hover {
+            color: #007bff;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+        }
+        
+        .add-button {
+            background: #007bff;
+            color: white !important;
+            border-radius: 50px;
+            padding: 10px 15px;
+        }
+        
+        .add-button:hover {
+            background: #0056b3;
+            color: white !important;
         }
     </style>
 </body>

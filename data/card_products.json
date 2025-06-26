@@ -186,5 +186,25 @@
     "logo_image": null,
     "created_at": "2025-06-25T12:39:39.699114",
     "is_active": true
+  },
+  {
+    "id": "02f17962-b3a3-4b97-ad6d-263b2af26b4c",
+    "name": "بطاقة بشعار",
+    "price": 1,
+    "background_color": null,
+    "background_image": "uploads/backgrounds/background_964c6a28.png",
+    "logo_image": null,
+    "created_at": "2025-06-26T10:54:25.391552",
+    "is_active": true
+  },
+  {
+    "id": "f5eb9314-df8d-4bf8-baf0-5e514263e346",
+    "name": "مخصص",
+    "price": 10,
+    "background_color": null,
+    "background_image": "uploads/backgrounds/background_533bb526.png",
+    "logo_image": "uploads/product_logos/product_logo_bdef5565.png",
+    "created_at": "2025-06-26T11:45:24.402943",
+    "is_active": true
   }
 ]

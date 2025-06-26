@@ -27,7 +27,7 @@
                         {% for product in products %}
                         <!-- بطاقة {{ product_type }} بقيمة {{ product.price }} ريال -->
                         <div class="product-card" data-type="{{ product.name }}" data-value="{{ product.price }}" data-product-id="{{ product.id }}" onclick="selectCard(this)">
-                            <div class="product-preview" data-type="{{ product.name }}" style="background: linear-gradient(135deg, {{ product.background_color }} 0%, {{ product.background_color }} 100%);">
+                            <div class="product-preview" data-type="{{ product.name }}" style="{% if product.background_image %}background-image: url('{{ url_for('static', filename=product.background_image) }}'); background-size: cover; background-position: center;{% else %}background: linear-gradient(135deg, {{ product.background_color }} 0%, {{ product.background_color }} 100%);{% endif %}">
                                 {% if product.logo_image %}
                                 <div class="product-logo" style="background-color:rgb(87, 87, 87);  margin-top: 20px;">
                                     <img src="{{ url_for('static', filename=product.logo_image) }}" alt="{{ product.name }} logo">

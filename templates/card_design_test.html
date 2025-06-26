@@ -27,6 +27,7 @@
                             data-id="{{ product.id }}"
                             data-price="{{ product.price }}"
                             data-color="{{ product.background_color }}" 
+                            data-background-image="{{ product.background_image or '' }}"
                             data-logo="{{ product.logo_image or '' }}"
                             data-display="{{ product.display_name }}">
                         {{ product.display_name }}
@@ -121,11 +122,11 @@
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">>
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';"> 
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">>
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';"> 
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -150,6 +151,7 @@
                 const cardType = selectedOption.value;
                 const cardPrice = selectedOption.getAttribute('data-price');
                 const backgroundColor = selectedOption.getAttribute('data-color');
+                const backgroundImage = selectedOption.getAttribute('data-background-image');
                 const logoImage = selectedOption.getAttribute('data-logo');
                 const displayName = selectedOption.getAttribute('data-display');
                 
@@ -158,14 +160,20 @@
                 previewCard.setAttribute('data-id', cardId);
                 previewCard.setAttribute('data-price', cardPrice);
                 
-                // تحديث لون الخلفية
-                if (backgroundColor) {
+                // تحديث خلفية البطاقة
+                if (backgroundImage && backgroundImage.trim() !== '') {
+                    previewCard.style.backgroundImage = `url('/static/${backgroundImage}')`;
+                    previewCard.style.backgroundSize = 'cover';
+                    previewCard.style.backgroundPosition = 'center';
+                    previewCard.style.background = '';
+                } else if (backgroundColor) {
                     previewCard.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor} 100%)`;
+                    previewCard.style.backgroundImage = '';
                 }
                 
                 // تحديث الشعار
                 if (logoImage && logoImage.trim() !== '') {
-                    cardLogo.src = `{{ url_for('static', filename='') }}${logoImage}`;
+                    cardLogo.src = `/static/${logoImage}`;
                     cardLogo.style.display = 'block';
                     console.log('تم تحديث الشعار:', logoImage);
                 } else {
@@ -187,6 +195,7 @@
             } else {
                 // إعادة تعيين التصميم الافتراضي
                 previewCard.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                previewCard.style.backgroundImage = '';
                 previewCard.removeAttribute('data-id');
                 previewCard.removeAttribute('data-price');
                 cardLogo.style.display = 'none';
