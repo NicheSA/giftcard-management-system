@@ -35,7 +35,7 @@
                     <div class="card-content">
                         <div class="card-logo">
                             {% if card.logo_image %}
-                                <img src="{{ url_for('static', filename='uploads/product_logos/' + card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                                <img src="{{ url_for('static', filename=card.logo_image) }}" alt="شعار البطاقة" class="logo-image">
                             {% endif %}
                         </div>
                         <div class="to-section">
