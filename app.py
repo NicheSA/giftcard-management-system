@@ -432,7 +432,6 @@ def test_card_design():
                     'name': product['name'],
                     'price': product['price'],
                     'background_color': product['background_color'],
-                    'background_image': product.get('background_image', ''),
                     'logo_image': product.get('logo_image', ''),
                     'display_name': f"{product['name']} - {product['price']} ريال"
                 })
@@ -962,25 +961,8 @@ def admin_products():
                 if product_type == '__new__':
                     product_type = request.form.get('new_type', '').strip()
                 
-                # التحقق من نوع الخلفية المختار
-                background_type = request.form.get('background_type', 'color')
-                
-                # التحقق من الحقول الأساسية
-                if not all([price, product_type]):
+                if not all([price, background_color, product_type]):
                     flash('جميع الحقول مطلوبة', 'error')
-                    return redirect(url_for('admin_products'))
-                
-                # التحقق من وجود خلفية (لون أو صورة)
-                has_background = False
-                if background_type == 'color' and background_color:
-                    has_background = True
-                elif background_type == 'image' and 'background_image' in request.files:
-                    file = request.files['background_image']
-                    if file and file.filename != '':
-                        has_background = True
-                
-                if not has_background:
-                    flash('يجب اختيار لون خلفية أو رفع صورة خلفية', 'error')
                     return redirect(url_for('admin_products'))
                 
                 try:
@@ -994,6 +976,7 @@ def admin_products():
                 
                 # التعامل مع رفع الشعار
                 logo_image = None
+                
                 if 'logo_image' in request.files:
                     file = request.files['logo_image']
                     if file and file.filename != '':
@@ -1018,40 +1001,8 @@ def admin_products():
                             flash('نوع الملف غير مدعوم. يرجى استخدام PNG, JPG, JPEG, GIF, أو SVG', 'error')
                             return redirect(url_for('admin_products'))
                 
-                # التعامل مع صورة الخلفية
-                background_image = None
-                
-                if background_type == 'image' and 'background_image' in request.files:
-                    file = request.files['background_image']
-                    if file and file.filename != '':
-                        # التحقق من نوع الملف
-                        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-                        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-                        
-                        if file_extension in allowed_extensions:
-                            # إنشاء اسم ملف فريد
-                            import uuid
-                            unique_filename = f"background_{uuid.uuid4().hex[:8]}.{file_extension}"
-                            
-                            # إنشاء مجلد صور الخلفية إذا لم يكن موجوداً
-                            backgrounds_dir = os.path.join('static', 'uploads', 'backgrounds')
-                            os.makedirs(backgrounds_dir, exist_ok=True)
-                            
-                            # حفظ الملف
-                            file_path = os.path.join(backgrounds_dir, unique_filename)
-                            file.save(file_path)
-                            background_image = f"uploads/backgrounds/{unique_filename}"
-                            # إذا تم رفع صورة خلفية، لا نحتاج للون
-                            background_color = None
-                        else:
-                            flash('نوع ملف صورة الخلفية غير مدعوم. يرجى استخدام PNG, JPG, JPEG, أو GIF', 'error')
-                            return redirect(url_for('admin_products'))
-                elif background_type == 'color':
-                    # إذا تم اختيار لون، لا نحتاج لصورة خلفية
-                    background_image = None
-                
                 # استخدام نوع المنتج كاسم المنتج
-                product_manager.add_product(product_type, price, background_color, logo_image, background_image)
+                product_manager.add_product(product_type, price, background_color, logo_image)
                 flash('تم إضافة المنتج بنجاح', 'success')
                 
             except Exception as e:
@@ -1082,15 +1033,11 @@ def admin_products():
                     flash('السعر يجب أن يكون رقم صحيح', 'error')
                     return redirect(url_for('admin_products'))
                 
-                # الحصول على المنتج القديم لحذف الملفات القديمة لاحقاً
+                # الحصول على الشعار القديم لحذفه لاحقاً
                 old_product = product_manager.get_product_by_id(product_id)
                 old_logo_path = None
-                old_background_path = None
-                if old_product:
-                    if old_product.get('logo_image'):
-                        old_logo_path = os.path.join('static', old_product['logo_image'])
-                    if old_product.get('background_image'):
-                        old_background_path = os.path.join('static', old_product['background_image'])
+                if old_product and old_product.get('logo_image'):
+                    old_logo_path = os.path.join('static', old_product['logo_image'])
                 
                 # التعامل مع رفع الشعار
                 logo_image = None
@@ -1118,33 +1065,7 @@ def admin_products():
                             flash('نوع الملف غير مدعوم. يرجى استخدام PNG, JPG, JPEG, GIF, أو SVG', 'error')
                             return redirect(url_for('admin_products'))
                 
-                # التعامل مع رفع صورة الخلفية
-                background_image = None
-                if 'background_image' in request.files:
-                    file = request.files['background_image']
-                    if file and file.filename != '':
-                        # التحقق من نوع الملف
-                        allowed_extensions = {'png', 'jpg', 'jpeg'}
-                        file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-                        
-                        if file_extension in allowed_extensions:
-                            # إنشاء اسم ملف فريد باللغة الإنجليزية
-                            import uuid
-                            unique_filename = f"background_{uuid.uuid4().hex[:8]}.{file_extension}"
-                            
-                            # إنشاء مجلد الخلفيات إذا لم يكن موجوداً
-                            backgrounds_dir = os.path.join('static', 'uploads', 'backgrounds')
-                            os.makedirs(backgrounds_dir, exist_ok=True)
-                            
-                            # حفظ الملف
-                            file_path = os.path.join(backgrounds_dir, unique_filename)
-                            file.save(file_path)
-                            background_image = f"uploads/backgrounds/{unique_filename}"
-                        else:
-                            flash('نوع الملف غير مدعوم لصورة الخلفية. يرجى استخدام PNG, JPG, أو JPEG', 'error')
-                            return redirect(url_for('admin_products'))
-                
-                product_manager.update_product(product_id, product_type, price, background_color, logo_image, background_image)
+                product_manager.update_product(product_id, product_type, price, background_color, logo_image)
                 
                 # حذف الشعار القديم إذا تم رفع شعار جديد
                 if logo_image and old_logo_path and os.path.exists(old_logo_path):
@@ -1153,14 +1074,6 @@ def admin_products():
                         logger.info(f"تم حذف الشعار القديم: {old_logo_path}")
                     except Exception as e:
                         logger.warning(f"فشل في حذف الشعار القديم {old_logo_path}: {str(e)}")
-                
-                # حذف صورة الخلفية القديمة إذا تم رفع صورة خلفية جديدة
-                if background_image and old_background_path and os.path.exists(old_background_path):
-                    try:
-                        os.remove(old_background_path)
-                        logger.info(f"تم حذف صورة الخلفية القديمة: {old_background_path}")
-                    except Exception as e:
-                        logger.warning(f"فشل في حذف صورة الخلفية القديمة {old_background_path}: {str(e)}")
                 
                 flash('تم تحديث المنتج بنجاح', 'success')
                 
