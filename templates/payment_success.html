@@ -118,6 +118,70 @@
         .btn-home:hover {
             background-color: #7f8c8d;
         }
+        
+        .card-preview-section {
+            margin: 20px 0;
+        }
+        
+        .gift-card {
+            width: 100%;
+            max-width: 400px;
+            height: 250px;
+            margin: 0 auto;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+        }
+        
+        .card-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo-image {
+            max-width: 80px;
+            max-height: 40px;
+            object-fit: contain;
+        }
+        
+        .to-section, .from-section {
+            text-align: right;
+        }
+        
+        .card-message {
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+        
+        .card-value {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .card-code {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -138,11 +202,39 @@
                 <h2>تمت عملية الدفع بنجاح!</h2>
                 <p>شكراً لك! تم إنشاء بطاقة الإهداء الخاصة بك بنجاح وهي جاهزة الآن.</p>
                 <p>يمكنك الآن عرض البطاقة أو مشاركتها مع المستلم.</p>
-                <div class="card-content">
-                    <div class="card-logo">
-                        {% if card_data.logo_image %}
-                            <img src="{{ url_for('static', filename='uploads/logos/' + card_data.logo_image) }}" alt="شعار البطاقة" class="logo-image">
-                        {% endif %}
+                <!-- معاينة البطاقة -->
+                <div class="card-preview-section">
+                    <div class="gift-card" data-type="{{ card_data.card_type }}" style="{% if card_data.background_image %}background-image: url('{{ url_for('static', filename=card_data.background_image) }}'); background-size: cover; background-position: center;{% else %}background: {{ card_data.background_color if card_data.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};{% endif %}">
+                        <div class="card-content">
+                            <div class="card-logo">
+                                {% if card_data.logo_image %}
+                                    <img src="{{ url_for('static', filename=card_data.logo_image) }}" alt="شعار البطاقة" class="logo-image">
+                                {% endif %}
+                            </div>
+                            <div class="to-section">
+                                <span class="to-label" style="font-size: 12px;">إلى</span>
+                                <span class="to-name" style="font-size: 12px;">{{ card_data.recipient_name }}</span>
+                            </div>
+                            
+                            <div class="card-message">
+                                {{ card_data.message }}
+                            </div>
+                            
+                            <div class="from-section">
+                                <span class="from-label" style="font-size: 12px;">من:</span>
+                                <span class="from-name" style="font-size: 12px;">{{ card_data.sender_name }}</span>
+                            </div>
+                            
+                            <div class="card-value">
+                                <span class="value-amount">{{ card_data.card_value }}</span>
+                                <span class="currency">ريال</span>
+                            </div>
+                            
+                            <div class="card-code">
+                                <span class="code-label">رمز البطاقة:</span>
+                                <span class="code-value">{{ card_data.random_code if card_data.random_code else '000000' }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
