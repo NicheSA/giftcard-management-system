@@ -431,7 +431,7 @@
             <div class="products-grid">
                 {% for product in products %}
                 <div class="product-item">
-                    <div class="product-preview" style="background-color: {{ product.background_color|default('#667eea') }};">
+                    <div class="product-preview" style="background-color: {{ product.background_color|default('#667eea') }};{% if product.background_image %} background-image: url('{{ url_for('static', filename=product.background_image) }}'); background-size: cover; background-position: center; background-repeat: no-repeat;{% endif %}">
                         {% if product.logo_image %}
                         <div style="text-align: center; margin-bottom: 10px;">
                             <img src="{{ url_for('static', filename=product.logo_image) }}" alt="شعار المنتج" style="width: 80px; height: 80px; object-fit: contain; padding: 5px;">

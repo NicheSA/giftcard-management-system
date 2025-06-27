@@ -129,6 +129,8 @@
                 // تحديث المعاينة
                 const previewType = document.getElementById('preview-type');
                 const previewValue = document.getElementById('preview-value');
+                const cardPreview = document.querySelector('.card-preview');
+                const selectedBackgroundImage = sessionStorage.getItem('selectedBackgroundImage');
                 
                 if (previewType) {
                     previewType.textContent = selectedCardType;
@@ -139,12 +141,21 @@
                     previewValue.textContent = selectedCardValue + ' ريال';
                 }
                 
+                // تطبيق صورة الخلفية إذا كانت متوفرة
+                if (cardPreview && selectedBackgroundImage && selectedBackgroundImage.trim() !== '') {
+                    cardPreview.style.backgroundImage = `url('/static/${selectedBackgroundImage}')`;
+                    cardPreview.style.backgroundSize = 'cover';
+                    cardPreview.style.backgroundPosition = 'center';
+                    cardPreview.style.backgroundRepeat = 'no-repeat';
+                }
+                
                 updatePreview();
                 
                 // مسح البيانات من الجلسة بعد استخدامها
                 sessionStorage.removeItem('selectedCardType');
                 sessionStorage.removeItem('selectedCardValue');
                 sessionStorage.removeItem('selectedProductId');
+                sessionStorage.removeItem('selectedBackgroundImage');
             }
         });
     </script>

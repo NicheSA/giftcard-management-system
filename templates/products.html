@@ -84,10 +84,29 @@
             const cardValue = element.getAttribute('data-value');
             const productId = element.getAttribute('data-product-id');
             
+            // الحصول على صورة الخلفية من عنصر product-preview
+            const productPreview = element.querySelector('.product-preview');
+            const backgroundImage = productPreview ? productPreview.style.backgroundImage : '';
+            let backgroundImagePath = '';
+            
+            // استخراج مسار الصورة من CSS background-image
+            if (backgroundImage && backgroundImage.includes('url(')) {
+                const match = backgroundImage.match(/url\(['"]?([^'"\)]+)['"]?\)/);
+                if (match && match[1]) {
+                    // استخراج المسار النسبي من URL الكامل
+                    const fullPath = match[1];
+                    const staticIndex = fullPath.indexOf('/static/');
+                    if (staticIndex !== -1) {
+                        backgroundImagePath = fullPath.substring(staticIndex + 8); // إزالة '/static/'
+                    }
+                }
+            }
+            
             // حفظ البيانات في الجلسة
             sessionStorage.setItem('selectedCardType', cardType);
             sessionStorage.setItem('selectedCardValue', cardValue);
             sessionStorage.setItem('selectedProductId', productId);
+            sessionStorage.setItem('selectedBackgroundImage', backgroundImagePath);
             
             // الانتقال إلى صفحة إدخال البيانات
             window.location.href = '{{ url_for("card_form_with_data") }}';

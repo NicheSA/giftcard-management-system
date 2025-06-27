@@ -18,7 +18,7 @@
             {% if cards %}
                 {% for card in cards %}
                 <div class="card-item" onclick="window.location.href='{{ url_for('view_card', card_id=card.id) }}';">
-                    <div class="card-preview">
+                    <div class="card-preview"{% if card.background_image %} style="background-image: url('{{ url_for('static', filename=card.background_image) }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"{% endif %}>
                         <div class="card-info">
                             <span class="card-type-label" data-type="{{ card.card_type }}">{{ card.card_type }}</span>
                             <span class="card-value-label">{{ card.card_value }} ريال</span>
