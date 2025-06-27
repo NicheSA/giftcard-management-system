@@ -167,11 +167,13 @@
                     previewCard.style.backgroundSize = 'cover';
                     previewCard.style.backgroundPosition = 'center';
                     previewCard.style.backgroundRepeat = 'no-repeat';
+                    previewCard.style.backgroundColor = ''; // إزالة لون الخلفية عند وجود صورة
                     console.log('تم تحديث صورة الخلفية:', backgroundImage);
                 } else {
-                    // إزالة صورة الخلفية إذا لم تكن متوفرة
+                    // إزالة صورة الخلفية إذا لم تكن متوفرة وتطبيق لون الخلفية
                     previewCard.style.backgroundImage = '';
-                    console.log('لا توجد صورة خلفية للعرض');
+                    previewCard.style.backgroundColor = backgroundColor || '#667eea';
+                    console.log('لا توجد صورة خلفية، تم تطبيق لون الخلفية:', backgroundColor);
                 }
                 
                 // تحديث الشعار
@@ -198,6 +200,7 @@
             } else {
                 // إعادة تعيين التصميم - إزالة جميع الخلفيات
                 previewCard.style.backgroundImage = '';
+                previewCard.style.backgroundColor = '';
                 previewCard.removeAttribute('data-id');
                 previewCard.removeAttribute('data-price');
                 cardLogo.style.display = 'none';
