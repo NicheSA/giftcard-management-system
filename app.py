@@ -435,7 +435,105 @@ def view_card(card_id):
     if not card:
         return redirect(url_for('home'))
     
-    return render_template('card_view.html', card=card)
+    # إنشاء CSP hashes للسكريبت والستايل المضمنين
+    import hashlib
+    import base64
+    
+    # حساب hash للسكريبت المضمن (مبسط)
+    script_content = '''
+        function downloadCard() {
+            const cardElement = document.querySelector('.gift-card');
+            
+            if (typeof html2canvas === 'undefined') {
+                alert('المكتبة غير متاحة');
+                return;
+            }
+            
+            html2canvas(cardElement).then(function(canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL();
+                link.download = 'بطاقة_إهداء.png';
+                link.click();
+            });
+        }
+        
+        function shareCard() {
+            const cardUrl = window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'بطاقة إهداء',
+                    url: cardUrl
+                });
+            } else {
+                navigator.clipboard.writeText(cardUrl).then(() => {
+                    alert('تم نسخ الرابط!');
+                }).catch(() => {
+                    prompt('انسخ الرابط:', cardUrl);
+                });
+            }
+        }
+    '''
+    
+    script_hash = base64.b64encode(hashlib.sha256(script_content.encode('utf-8')).digest()).decode('utf-8')
+    
+    # حساب hash للستايل المضمن
+    style_content = '''
+        .saved-card-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .saved-card-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            text-align: center;
+        }
+        
+        .card-details {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .card-details p {
+            margin: 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .card-details strong {
+            color: #495057;
+        }
+        
+        .card-details span {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .card-preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card-preview-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            text-align: center;
+        }
+    '''
+    
+    style_hash = base64.b64encode(hashlib.sha256(style_content.encode('utf-8')).digest()).decode('utf-8')
+    
+    return render_template('card_view.html', card=card, csp_script_hash=script_hash, csp_style_hash=style_hash)
 
 @app.route('/test/card-design')
 def test_card_design():
