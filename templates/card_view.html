@@ -94,6 +94,12 @@
             // تحديد عنصر البطاقة
             const cardElement = document.querySelector('.gift-card');
             
+            // التأكد من تحميل html2canvas
+            if (typeof html2canvas === 'undefined') {
+                alert('جاري تحميل المكتبة، يرجى المحاولة مرة أخرى');
+                return;
+            }
+            
             // تحويل البطاقة إلى صورة باستخدام html2canvas
             html2canvas(cardElement, {
                 backgroundColor: null,

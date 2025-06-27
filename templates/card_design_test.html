@@ -123,11 +123,11 @@
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';"> 
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';"> 
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -350,6 +350,12 @@
         
         function downloadCard() {
             const cardElement = document.querySelector('.gift-card');
+            
+            // التأكد من تحميل html2canvas
+            if (typeof html2canvas === 'undefined') {
+                alert('جاري تحميل المكتبة، يرجى المحاولة مرة أخرى');
+                return;
+            }
             
             html2canvas(cardElement, {
                 backgroundColor: null,
