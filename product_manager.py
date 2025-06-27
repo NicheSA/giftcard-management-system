@@ -86,7 +86,7 @@ class ProductManager:
                 return product
         return None
     
-    def add_product(self, name, price, background_color, logo_image=None):
+    def add_product(self, name, price, background_color, logo_image=None, background_image=None):
         """إضافة منتج جديد"""
         try:
             with open(self.products_file, 'r', encoding='utf-8') as f:
@@ -98,6 +98,7 @@ class ProductManager:
                 'price': int(price),
                 'background_color': background_color,
                 'logo_image': logo_image,
+                'background_image': background_image,
                 'created_at': datetime.now().isoformat(),
                 'is_active': True
             }
@@ -112,7 +113,7 @@ class ProductManager:
             print(f"خطأ في إضافة المنتج: {str(e)}")
             return None
     
-    def update_product(self, product_id, name, price, background_color, logo_image=None):
+    def update_product(self, product_id, name, price, background_color, logo_image=None, background_image=None):
         """تحديث منتج موجود"""
         try:
             with open(self.products_file, 'r', encoding='utf-8') as f:
@@ -130,6 +131,10 @@ class ProductManager:
                     # تحديث الشعار فقط إذا تم توفيره
                     if logo_image is not None:
                         update_data['logo_image'] = logo_image
+                    
+                    # تحديث صورة الخلفية فقط إذا تم توفيرها
+                    if background_image is not None:
+                        update_data['background_image'] = background_image
                     
                     products[i].update(update_data)
                     

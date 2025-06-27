@@ -434,7 +434,7 @@
                     <div class="product-preview" style="background-color: {{ product.background_color|default('#667eea') }};">
                         {% if product.logo_image %}
                         <div style="text-align: center; margin-bottom: 10px;">
-                            <img src="{{ url_for('static', filename=product.logo_image) }}" alt="شعار المنتج" style="width: 80px;height: 80px;object-fit:contain;padding:5px;">
+                            <img src="{{ url_for('static', filename=product.logo_image) }}" alt="شعار المنتج" style="width: 80px; height: 80px; object-fit: contain; padding: 5px;">
                         </div>
                         {% endif %}
                         <div style="font-size: 1.2rem; margin-bottom: 10px;">{{ product.name }}</div>
@@ -489,37 +489,32 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>
-                        <i class="fas fa-palette"></i>
-                        لون الخلفية
-                        <button type="button" class="add-logo-btn" onclick="toggleLogoUpload()">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                    <label for="background_image">
+                        <i class="fas fa-image"></i>
+                        صورة خلفية البطاقة
                     </label>
-                    <input type="hidden" id="selectedColor" name="background_color" value="#667eea">
-                    <div class="color-picker">
-                        <div class="color-option selected" style="background: #667eea" onclick="selectColor('#667eea')"></div>
-                        <div class="color-option" style="background: #764ba2" onclick="selectColor('#764ba2')"></div>
-                        <div class="color-option" style="background: #56ab2f" onclick="selectColor('#56ab2f')"></div>
-                        <div class="color-option" style="background: #ff6b6b" onclick="selectColor('#ff6b6b')"></div>
-                        <div class="color-option" style="background: #4ecdc4" onclick="selectColor('#4ecdc4')"></div>
-                        <div class="color-option" style="background: #45b7d1" onclick="selectColor('#45b7d1')"></div>
-                        <div class="color-option" style="background: #f39c12" onclick="selectColor('#f39c12')"></div>
-                        <div class="color-option" style="background: #9b59b6" onclick="selectColor('#9b59b6')"></div>
+                    <input type="file" id="background_image" name="background_image" accept="image/png,image/jpg,image/jpeg,image/gif,image/webp" onchange="previewBackground(event)">
+                    <div class="background-preview" id="backgroundPreview" style="display: none; margin-top: 10px;">
+                        <img id="backgroundImg" src="" alt="معاينة الخلفية" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #ddd;">
+                        <button type="button" class="remove-background-btn" onclick="removeBackground()" style="margin-left: 10px; background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-times"></i> إزالة
+                        </button>
                     </div>
-                    
-                    <div class="logo-upload-section" id="logoUploadSection" style="display: none;">
-                        <label for="logo_image">
-                            <i class="fas fa-image"></i>
-                            شعار المنتج (اختياري)
-                        </label>
-                        <input type="file" id="logo_image" name="logo_image" accept="image/*" onchange="previewLogo(event)">
-                        <div class="logo-preview" id="logoPreview" style="display: none;">
-                            <img id="logoImg" src="" alt="معاينة الشعار">
-                            <button type="button" class="remove-logo-btn" onclick="removeLogo()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                    <small style="color: #666; display: block; margin-top: 5px;">إذا لم تختر صورة، سيتم استخدام اللون الافتراضي #bd887e</small>
+                    <input type="hidden" id="selectedColor" name="background_color" value="#bd887e">
+                </div>
+                
+                <div class="form-group">
+                    <label for="logo_image">
+                        <i class="fas fa-image"></i>
+                        شعار المنتج (اختياري)
+                    </label>
+                    <input type="file" id="logo_image" name="logo_image" accept="image/*" onchange="previewLogo(event)">
+                    <div class="logo-preview" id="logoPreview" style="display: none; margin-top: 10px;">
+                        <img id="logoImg" src="" alt="معاينة الشعار" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 2px solid #ddd;">
+                        <button type="button" class="remove-logo-btn" onclick="removeLogo()" style="margin-left: 10px; background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-times"></i> إزالة
+                        </button>
                     </div>
                 </div>
                 
@@ -578,10 +573,14 @@
             document.getElementById('logoPreview').style.display = 'none';
             document.getElementById('logo_image').value = '';
             document.getElementById('logoImg').src = '';
-            document.getElementById('logoUploadSection').style.display = 'none';
+            
+            // تنظيف معاينة الخلفية
+            document.getElementById('backgroundPreview').style.display = 'none';
+            document.getElementById('background_image').value = '';
+            document.getElementById('backgroundImg').src = '';
             
             // إعادة تعيين اللون الافتراضي
-            selectColor('#667eea');
+            document.getElementById('selectedColor').value = '#bd887e';
             
             document.getElementById('productModal').style.display = 'block';
         }
@@ -631,16 +630,22 @@
                         newProductTypeInput.name = '';
                     }
                     
-                    // تعيين اللون
-                    selectColor(product.background_color);
+                    // تعيين اللون الافتراضي
+                    document.getElementById('selectedColor').value = product.background_color || '#bd887e';
+                    
+                    // معالجة الخلفية الحالية
+                    if (product.background_image) {
+                        document.getElementById('backgroundImg').src = `/static/${product.background_image}`;
+                        document.getElementById('backgroundPreview').style.display = 'block';
+                    } else {
+                        document.getElementById('backgroundPreview').style.display = 'none';
+                    }
                     
                     // معالجة الشعار الحالي
                     if (product.logo_image) {
-                        document.getElementById('logoUploadSection').style.display = 'block';
                         document.getElementById('logoImg').src = `/static/${product.logo_image}`;
                         document.getElementById('logoPreview').style.display = 'block';
                     } else {
-                        document.getElementById('logoUploadSection').style.display = 'none';
                         document.getElementById('logoPreview').style.display = 'none';
                     }
                     
@@ -676,21 +681,25 @@
             }
         }
         
-        function selectColor(color) {
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // البحث عن العنصر الذي يحتوي على اللون المحدد
-            const colorElements = document.querySelectorAll('.color-option');
-            colorElements.forEach(element => {
-                const elementColor = element.style.background || element.getAttribute('style').match(/background:\s*([^;]+)/)?.[1];
-                if (elementColor && elementColor.includes(color)) {
-                    element.classList.add('selected');
-                }
-            });
-            
-            document.getElementById('selectedColor').value = color;
+        function previewBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const backgroundImg = document.getElementById('backgroundImg');
+                    const backgroundPreview = document.getElementById('backgroundPreview');
+                    
+                    backgroundImg.src = e.target.result;
+                    backgroundPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removeBackground() {
+            document.getElementById('backgroundPreview').style.display = 'none';
+            document.getElementById('background_image').value = '';
+            document.getElementById('backgroundImg').src = '';
         }
         
         function closeModal() {
@@ -699,7 +708,10 @@
             document.getElementById('logoPreview').style.display = 'none';
             document.getElementById('logo_image').value = '';
             document.getElementById('logoImg').src = '';
-            document.getElementById('logoUploadSection').style.display = 'none';
+            // تنظيف معاينة الخلفية
+            document.getElementById('backgroundPreview').style.display = 'none';
+            document.getElementById('background_image').value = '';
+            document.getElementById('backgroundImg').src = '';
         }
         
         function handleProductTypeChange() {
@@ -729,17 +741,6 @@
         }
         
         // وظائف رفع الشعار
-        function toggleLogoUpload() {
-            const logoSection = document.getElementById('logoUploadSection');
-            if (logoSection.style.display === 'none') {
-                logoSection.style.display = 'block';
-            } else {
-                logoSection.style.display = 'none';
-                // إخفاء معاينة الشعار عند إغلاق القسم
-                document.getElementById('logoPreview').style.display = 'none';
-                document.getElementById('logo_image').value = '';
-            }
-        }
         
         function previewLogo(event) {
             const file = event.target.files[0];

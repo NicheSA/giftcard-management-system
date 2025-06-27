@@ -27,6 +27,7 @@
                             data-id="{{ product.id }}"
                             data-price="{{ product.price }}"
                             data-color="{{ product.background_color }}" 
+                            data-background-image="{{ product.background_image or '' }}"
                             data-logo="{{ product.logo_image or '' }}"
                             data-display="{{ product.display_name }}">
                         {{ product.display_name }}
@@ -61,7 +62,7 @@
             <!-- قسم معاينة البطاقة -->
             <div class="card-preview-section">
                 <h3>معاينة البطاقة</h3>
-                <div class="gift-card" id="previewCard" data-type="عام" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="gift-card" id="previewCard" data-type="عام">
                     <div class="card-content">
                         <div class="card-logo">
                             <img id="cardLogo" src="" alt="شعار البطاقة" class="logo-image">
@@ -121,11 +122,11 @@
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">>
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';"> 
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">>
+            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';"> 
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -150,6 +151,7 @@
                 const cardType = selectedOption.value;
                 const cardPrice = selectedOption.getAttribute('data-price');
                 const backgroundColor = selectedOption.getAttribute('data-color');
+                const backgroundImage = selectedOption.getAttribute('data-background-image');
                 const logoImage = selectedOption.getAttribute('data-logo');
                 const displayName = selectedOption.getAttribute('data-display');
                 
@@ -158,9 +160,17 @@
                 previewCard.setAttribute('data-id', cardId);
                 previewCard.setAttribute('data-price', cardPrice);
                 
-                // تحديث لون الخلفية
-                if (backgroundColor) {
-                    previewCard.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor} 100%)`;
+                // تحديث خلفية البطاقة - عرض صورة الخلفية فقط إذا كانت متوفرة
+                if (backgroundImage && backgroundImage.trim() !== '') {
+                    previewCard.style.backgroundImage = `url('{{ url_for('static', filename='') }}${backgroundImage}')`;
+                    previewCard.style.backgroundSize = 'cover';
+                    previewCard.style.backgroundPosition = 'center';
+                    previewCard.style.backgroundRepeat = 'no-repeat';
+                    console.log('تم تحديث صورة الخلفية:', backgroundImage);
+                } else {
+                    // إزالة صورة الخلفية إذا لم تكن متوفرة
+                    previewCard.style.backgroundImage = '';
+                    console.log('لا توجد صورة خلفية للعرض');
                 }
                 
                 // تحديث الشعار
@@ -185,8 +195,8 @@
                 // عرض معلومات البطاقة المحددة في وحدة التحكم للمطورين
                 console.log(`تم اختيار البطاقة: ${displayName} (ID: ${cardId}, السعر: ${cardPrice} ريال)`);
             } else {
-                // إعادة تعيين التصميم الافتراضي
-                previewCard.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                // إعادة تعيين التصميم - إزالة جميع الخلفيات
+                previewCard.style.backgroundImage = '';
                 previewCard.removeAttribute('data-id');
                 previewCard.removeAttribute('data-price');
                 cardLogo.style.display = 'none';
@@ -500,6 +510,8 @@
             outline: none;
             border-color: #667eea;
         }
+        
+
     </style>
 </body>
 </html>

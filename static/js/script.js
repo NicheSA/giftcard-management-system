@@ -81,6 +81,10 @@ function updatePreview() {
     document.getElementById('preview-message').textContent = message;
 }
 
+
+
+
+
 /**
  * تهيئة أزرار المشاركة في صفحة عرض البطاقة
  */

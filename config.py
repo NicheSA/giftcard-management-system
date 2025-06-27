@@ -75,5 +75,8 @@ class AppConfig:
     # مجلد البيانات
     DATA_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
     
+    # مجلد رفع الملفات
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+    
     # إعدادات الجلسة
     SESSION_TIMEOUT = 3600  # ساعة واحدة

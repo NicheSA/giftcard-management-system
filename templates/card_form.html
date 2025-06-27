@@ -51,6 +51,8 @@
                     <textarea id="message" name="message" rows="5" placeholder="اكتب رسالة الإهداء هنا..." required></textarea>
                 </div>
                 
+                <input type="hidden" id="selected_background_color" name="background_color" value="#bd887e">
+                
                 <div class="form-preview">
                     <h3>معاينة البطاقة</h3>
                     <div class="card-preview">
@@ -94,11 +96,11 @@
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';"> 
+            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button active" onclick="window.location.href='{{ url_for('products') }}';"> 
+            <div class="nav-item add-button active" onclick="window.location.href='{{ url_for('products') }}';">
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -151,6 +153,9 @@
         document.getElementById('from_name').addEventListener('input', updatePreview);
         document.getElementById('to_name').addEventListener('input', updatePreview);
         document.getElementById('message').addEventListener('input', updatePreview);
+        
+        // تحديث المعاينة عند تحميل الصفحة
+        updatePreview();
         
         function updatePreview() {
             const fromName = document.getElementById('from_name').value || '-';

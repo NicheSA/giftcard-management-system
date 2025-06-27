@@ -528,6 +528,9 @@ header p {
     justify-content: center;
     align-items: center;
     text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .card-content {
@@ -723,6 +726,9 @@ header p {
     justify-content: center;
     align-items: center;
     text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .card-content {
@@ -913,6 +919,9 @@ header p {
     color: white;
     text-align: center;
     padding: 15px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .product-preview[data-type="زواج"] {
@@ -1012,6 +1021,157 @@ header p {
     .products-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* ===== تخصيص الخلفية ===== */
+.background-options {
+    margin-top: 15px;
+}
+
+.background-type-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.background-type-selector input[type="radio"] {
+    display: none;
+}
+
+.bg-type-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: var(--card-bg);
+    font-weight: 500;
+}
+
+.bg-type-label:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(142, 68, 173, 0.05);
+}
+
+.background-type-selector input[type="radio"]:checked + .bg-type-label {
+    border-color: var(--primary-color);
+    background-color: rgba(142, 68, 173, 0.1);
+    color: var(--primary-color);
+}
+
+.color-picker {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.color-option {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-option.selected {
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.color-option.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.image-upload-section {
+    margin-top: 15px;
+}
+
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: var(--bg-color);
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(142, 68, 173, 0.05);
+}
+
+.upload-content i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.upload-content p {
+    margin: 10px 0 5px 0;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.upload-content small {
+    color: var(--light-text);
+    font-size: 0.85rem;
+}
+
+.image-preview {
+    position: relative;
+    margin-top: 15px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--border-radius);
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.remove-image-btn:hover {
+    background-color: #c0392b;
 }
 
 /* ===== طباعة البطاقة ===== */

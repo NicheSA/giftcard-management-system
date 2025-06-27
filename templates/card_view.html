@@ -31,7 +31,7 @@
             <!-- معاينة البطاقة -->
             <div class="card-preview-section">
                 <h3>البطاقة النهائية</h3>
-                <div class="gift-card" data-type="{{ card.card_type }}" style="background: {{ card.background_color if card.background_color else 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }};">
+                <div class="gift-card" data-type="{{ card.card_type }}"{% if card.background_image %} style="background-image: url('{{ url_for('static', filename=card.background_image) }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"{% endif %}>
                     <div class="card-content">
                         <div class="card-logo">
                             {% if card.logo_image %}

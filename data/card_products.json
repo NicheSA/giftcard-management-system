@@ -176,7 +176,8 @@
     "logo_image": "uploads/product_logos/product_logo_cdfe329e.png",
     "created_at": "2025-06-24T03:59:55.087028",
     "is_active": true,
-    "updated_at": "2025-06-24T19:39:50.676870"
+    "updated_at": "2025-06-27T02:46:37.658833",
+    "background_image": "uploads/backgrounds/background_2421fda7.png"
   },
   {
     "id": "cdfacb9e-c859-4c16-b06f-ddf6eda4a837",
@@ -185,26 +186,64 @@
     "background_color": "#ff6b6b",
     "logo_image": null,
     "created_at": "2025-06-25T12:39:39.699114",
-    "is_active": true
+    "is_active": false,
+    "deleted_at": "2025-06-27T02:46:01.080875"
   },
   {
     "id": "02f17962-b3a3-4b97-ad6d-263b2af26b4c",
     "name": "بطاقة بشعار",
     "price": 1,
-    "background_color": null,
+    "background_color": "#764ba2",
     "background_image": "uploads/backgrounds/background_964c6a28.png",
     "logo_image": null,
     "created_at": "2025-06-26T10:54:25.391552",
-    "is_active": true
+    "is_active": false,
+    "updated_at": "2025-06-27T01:52:56.490499",
+    "deleted_at": "2025-06-27T02:46:04.617976"
   },
   {
     "id": "f5eb9314-df8d-4bf8-baf0-5e514263e346",
     "name": "مخصص",
     "price": 10,
-    "background_color": null,
+    "background_color": "#ff6b6b",
     "background_image": "uploads/backgrounds/background_533bb526.png",
     "logo_image": "uploads/product_logos/product_logo_bdef5565.png",
     "created_at": "2025-06-26T11:45:24.402943",
+    "is_active": false,
+    "updated_at": "2025-06-27T02:14:04.899801",
+    "deleted_at": "2025-06-27T02:46:11.034890"
+  },
+  {
+    "id": "0e4b5519-f139-4207-8050-27fb93c8701f",
+    "name": "بطاقة بشعار",
+    "price": 1,
+    "background_color": "#bd887e",
+    "logo_image": "uploads/product_logos/product_logo_8b4186f5.png",
+    "background_image": "uploads/backgrounds/background_2d3c9419.png",
+    "created_at": "2025-06-27T02:24:26.713007",
+    "is_active": false,
+    "updated_at": "2025-06-27T02:38:14.947114",
+    "deleted_at": "2025-06-27T02:45:54.134960"
+  },
+  {
+    "id": "1cc8f994-fed0-468d-9fbc-a5378b52e9e7",
+    "name": "بطاقة بشعار",
+    "price": 100,
+    "background_color": "#bd887e",
+    "logo_image": "uploads/product_logos/product_logo_a9e1f63d.png",
+    "background_image": "uploads/backgrounds/background_447cfefe.png",
+    "created_at": "2025-06-27T02:38:56.008160",
+    "is_active": false,
+    "deleted_at": "2025-06-27T02:45:57.898551"
+  },
+  {
+    "id": "5e9a9d8e-4bc1-43ac-ae0d-79d623a24059",
+    "name": "بطاقة بشعار",
+    "price": 10,
+    "background_color": "#bd887e",
+    "logo_image": "uploads/product_logos/product_logo_b395c5c6.png",
+    "background_image": "uploads/backgrounds/background_3f8d9abd.png",
+    "created_at": "2025-06-27T02:47:50.794436",
     "is_active": true
   }
 ]

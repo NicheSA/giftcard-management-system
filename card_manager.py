@@ -71,7 +71,7 @@ class CardManager:
         
         return stats
     
-    def create_card(self, recipient_name, recipient_phone, card_type, card_value, message='', background_color='#667eea', logo_image=None, created_by_admin=None):
+    def create_card(self, recipient_name, recipient_phone, card_type, card_value, message='', background_color='#667eea', background_image='', logo_image=None, created_by_admin=None):
         """إنشاء بطاقة جديدة من الداشبورد الإداري"""
         try:
             # إنشاء معرف فريد للبطاقة
@@ -90,6 +90,7 @@ class CardManager:
                 'recipient_phone': recipient_phone,
                 'message': message,
                 'background_color': background_color,
+                'background_image': background_image,
                 'logo_image': logo_image,
                 'random_code': random_code,
                 'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
