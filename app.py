@@ -449,11 +449,21 @@ def view_card(card_id):
                 return;
             }
             
-            html2canvas(cardElement).then(function(canvas) {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL();
-                link.download = 'بطاقة_إهداء.png';
-                link.click();
+            // تحويل البطاقة إلى صورة باستخدام html2canvas
+            html2canvas(cardElement, {
+                backgroundColor: null,
+                scale: 2, // جودة أعلى
+                logging: false,
+                useCORS: true
+            }).then(function(canvas) {
+                // تحويل الكانفاس إلى رابط تحميل
+                const dataURL = canvas.toDataURL('image/png');
+                
+                // إنشاء رابط تحميل وتنفيذه
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataURL;
+                downloadLink.download = 'بطاقة_إهداء.png';
+                downloadLink.click();
             });
         }
         
