@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'sha256-{{ csp_script_hash }}'; style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'sha256-{{ csp_style_hash }}'; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://html2canvas.hertzen.com 'unsafe-inline' 'sha256-{{ csp_script_hash }}'; style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline' 'sha256-{{ csp_style_hash }}'; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
     <title>بطاقات الإهداء - عرض البطاقة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -32,7 +35,7 @@
             <!-- معاينة البطاقة -->
             <div class="card-preview-section">
                 <h3>البطاقة النهائية</h3>
-                <div class="gift-card" data-type="{{ card.card_type }}"{% if card.background_image %} style="background-image: url('{{ url_for('static', filename=card.background_image) }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"{% endif %}>
+                <div class="gift-card" data-type="{{ card.card_type }}"{% if card.background_image %} data-bg-image="{{ url_for('static', filename=card.background_image) }}"{% endif %}>
                     <div class="card-content">
                         <div class="card-logo">
                             {% if card.logo_image %}
@@ -61,10 +64,10 @@
             </div>
             
             <div class="card-actions">
-                <button class="btn-secondary" onclick="downloadCard()">
+                <button class="btn-secondary" id="download-btn">
                     <i class="fas fa-download"></i> تحميل البطاقة
                 </button>
-                <button class="btn-primary" onclick="shareCard()">
+                <button class="btn-primary" id="share-btn">
                     <i class="fas fa-share-alt"></i> مشاركة البطاقة
                 </button>
             </div>
@@ -72,11 +75,11 @@
         
         <!-- شريط التنقل السفلي الثابت -->
         <nav class="bottom-navbar">
-            <div class="nav-item" onclick="window.location.href='{{ url_for('home') }}';">
+            <div class="nav-item" data-url="{{ url_for('home') }}">
                 <i class="fas fa-home"></i>
                 <span>الرئيسية</span>
             </div>
-            <div class="nav-item add-button" onclick="window.location.href='{{ url_for('products') }}';">
+            <div class="nav-item add-button" data-url="{{ url_for('products') }}">
                 <i class="fas fa-plus-circle"></i>
                 <span>إضافة</span>
             </div>
@@ -90,48 +93,72 @@
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-        function downloadCard() {
-            const cardElement = document.querySelector('.gift-card');
-            
-            if (typeof html2canvas === 'undefined') {
-                alert('المكتبة غير متاحة');
-                return;
-            }
-            
-            // تحويل البطاقة إلى صورة باستخدام html2canvas
-            html2canvas(cardElement, {
-                backgroundColor: null,
-                scale: 2, // جودة أعلى
-                logging: false,
-                useCORS: true
-            }).then(function(canvas) {
-                // تحويل الكانفاس إلى رابط تحميل
-                const dataURL = canvas.toDataURL('image/png');
+        document.addEventListener('DOMContentLoaded', function() {
+             // تطبيق صورة الخلفية للبطاقة
+             const giftCard = document.querySelector('.gift-card');
+             const bgImage = giftCard.getAttribute('data-bg-image');
+             if (bgImage) {
+                 giftCard.style.backgroundImage = 'url(' + bgImage + ')';
+                 giftCard.style.backgroundSize = 'cover';
+                 giftCard.style.backgroundPosition = 'center';
+                 giftCard.style.backgroundRepeat = 'no-repeat';
+             }
+             
+             // إضافة event listener لزر التحميل
+            document.getElementById('download-btn').addEventListener('click', function() {
+                const cardElement = document.querySelector('.gift-card');
                 
-                // إنشاء رابط تحميل وتنفيذه
-                const downloadLink = document.createElement('a');
-                downloadLink.href = dataURL;
-                downloadLink.download = 'بطاقة_إهداء.png';
-                downloadLink.click();
+                if (typeof html2canvas === 'undefined') {
+                    alert('المكتبة غير متاحة');
+                    return;
+                }
+                
+                // تحويل البطاقة إلى صورة باستخدام html2canvas
+                html2canvas(cardElement, {
+                    backgroundColor: null,
+                    scale: 2, // جودة أعلى
+                    logging: false,
+                    useCORS: true
+                }).then(function(canvas) {
+                    // تحويل الكانفاس إلى رابط تحميل
+                    const dataURL = canvas.toDataURL('image/png');
+                    
+                    // إنشاء رابط تحميل وتنفيذه
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = dataURL;
+                    downloadLink.download = 'بطاقة_إهداء.png';
+                    downloadLink.click();
+                });
             });
-        }
-        
-        function shareCard() {
-            const cardUrl = window.location.href;
             
-            if (navigator.share) {
-                navigator.share({
-                    title: 'بطاقة إهداء',
-                    url: cardUrl
-                });
-            } else {
-                navigator.clipboard.writeText(cardUrl).then(() => {
-                    alert('تم نسخ الرابط!');
-                }).catch(() => {
-                    prompt('انسخ الرابط:', cardUrl);
-                });
-            }
-        }
+            // إضافة event listener لزر المشاركة
+             document.getElementById('share-btn').addEventListener('click', function() {
+                 const cardUrl = window.location.href;
+                 
+                 if (navigator.share) {
+                     navigator.share({
+                         title: 'بطاقة إهداء',
+                         url: cardUrl
+                     });
+                 } else {
+                     navigator.clipboard.writeText(cardUrl).then(() => {
+                         alert('تم نسخ الرابط!');
+                     }).catch(() => {
+                         prompt('انسخ الرابط:', cardUrl);
+                     });
+                 }
+             });
+             
+             // إضافة event listeners لشريط التنقل السفلي
+             document.querySelectorAll('.nav-item[data-url]').forEach(function(item) {
+                 item.addEventListener('click', function() {
+                     const url = this.getAttribute('data-url');
+                     if (url) {
+                         window.location.href = url;
+                     }
+                 });
+             });
+        });
     </script>
     
     <style>
