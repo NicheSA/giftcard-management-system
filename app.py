@@ -25,6 +25,16 @@ app = Flask(__name__)
 app.secret_key = AppConfig.SECRET_KEY
 app.config['UPLOAD_FOLDER'] = AppConfig.UPLOAD_FOLDER
 
+# إضافة Security Headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
 # تأكد من وجود مجلد للبيانات
 DATA_FOLDER = AppConfig.DATA_FOLDER
 os.makedirs(DATA_FOLDER, exist_ok=True)
